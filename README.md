@@ -23,7 +23,7 @@
 > Next you will need to navigate to the [Developer Portal](https://discordapp.com/developers). Click on <b>General Information</b> and copy your client secrent. After you copy that go back to DBM and paste it where it says <b>clientSecret</b>. Navigate back to the [Developer Portal](https://discordapp.com/developers) and click on <b>OAuth2</b>. Click where it says <b>Add Redirect</b> and paste this URL <code>http://localhost:3000/dashboard/callback</code>
 
 ## Step 3
-> Go to your bots main folder then go to <code>/extensions/dbm_dashboard_extension</code> and do <code>npm i</code>
+> Go to your bots main folder then go to <code>/extensions/dbm_dashboard_extension</code> and do <code>npm i</code> and then start your bot!
 
 ## Step 4
 > Now to configure the dashboard! Navigate to <code>http://localhost:3000/dashboard/admin</code> and here you can change the text for the landing page located here <code>http://localhost:3000/</code>
