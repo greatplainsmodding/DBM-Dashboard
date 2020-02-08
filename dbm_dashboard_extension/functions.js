@@ -1,20 +1,26 @@
-    const chalk = require('chalk'),
-    path = require('path'),
-    figlet = require('figlet'),
-    fs = require('fs');
+requireModule = function (packageName) {
+	const path = require("path");
+	const nodeModulesPath = path.join(__dirname, "node_modules", packageName);
+	return require(nodeModulesPath)
+}
+
+const chalk = requireModule('chalk'),
+path = requireModule('path'),
+figlet = requireModule('figlet'),
+fs = require('fs');
 
 module.exports = {
-    dashboardConfig: function () {
-        const dashboardConfigPath = path.join(process.cwd(), "extensions", "dbm_dashboard_extension", "config.json");
+	dashboardConfig: function () {
+		const dashboardConfigPath = path.join(process.cwd(), "extensions", "dbm_dashboard_extension", "config.json");
 		if (!fs.existsSync(dashboardConfigPath)) {
 			let configPlate = {
 				port: 3000,
 				password: 'default',
 				isBotSharded: false,
-                tokenSecret: Math.random().toString(36).substr(2),
-                clientSecret: '',
-                callbackURL: `http://localhost:3000/dashboard/callback`,
-                owner: '',
+				tokenSecret: Math.random().toString(36).substr(2),
+				clientSecret: '',
+				callbackURL: `http://localhost:3000/dashboard/callback`,
+				owner: '',
 				"navItems": [{
 						"name": "Home Page",
 						"link": "/"
@@ -50,18 +56,20 @@ module.exports = {
 				}
 			}
 			let settings = JSON.stringify(configPlate)
-            fs.writeFileSync(dashboardConfigPath, settings)
-            const config = require('./config.json')
-            return config
+			fs.writeFileSync(dashboardConfigPath, settings)
+			const config = require('./config.json')
+			return config
 		} else {
-            const config = require('./config.json')
-            return config
-        }
-    },
-    ready: function () {
-        const config = require('./config.json')
-        console.log("-------------------------------------------------------------------------------------------------");
-		console.log(chalk.yellow(figlet.textSync('DBM Dashboard', { horizontalLayout: 'full' })));
+			const config = require('./config.json')
+			return config
+		}
+	},
+	ready: function () {
+		const config = require('./config.json')
+		console.log("-------------------------------------------------------------------------------------------------");
+		console.log(chalk.yellow(figlet.textSync('DBM Dashboard', {
+			horizontalLayout: 'full'
+		})));
 		console.log("-------------------------------------------------------------------------------------------------");
 		console.log(chalk.white('-'), chalk.red("Creator:"), chalk.white('Great Plains Modding'));
 		console.log(chalk.white('-'), chalk.red("Version:"), chalk.white('1.0.0'));
@@ -69,7 +77,7 @@ module.exports = {
 		console.log(chalk.white('-'), chalk.red("isBotSharded:"), chalk.white(config.isBotSharded));
 		console.log(chalk.white('-'), chalk.red("Secret Token:"), chalk.white(config.tokenSecret));
 		console.log(chalk.white('-'), chalk.red("DBM Network:"), chalk.white('https://discord.gg/3QxkZPK'));
-        console.log("-------------------------------------------------------------------------------------------------");
-        console.log(chalk.green('Bot Ready'))
-    }
+		console.log("-------------------------------------------------------------------------------------------------");
+		console.log(chalk.green('Bot Ready'))
+	}
 }
