@@ -1,0 +1,23 @@
+
+<html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="ie=edge">
+      <title>Login</title>
+      <link rel="stylesheet" href="../css/main.css">
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    </head>
+    <body class="loginBody">
+      <form class="form-signin" action="/api/login" method="POST">
+        <h1 class="h3 mb-3 font-weight-normal">Login to Dashboard</h1>
+        <label for="inputEmail" class="sr-only">Username</label>
+        <input type="text" id="inputEmail" class="form-control" placeholder="username" name="username" required autofocus>
+        <br>
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input type="password" id="inputPassword" class="form-control" placeholder="Password" name="password" required>
+        <p>Need help? Read the docs <a href="#">here</a>.</p>
+        <button class="btn btn-lg btn-primary btn-block" type="submit" style="max-width: 100px">Sign in</button>
+      </form>
+    </body>
+    </html>
