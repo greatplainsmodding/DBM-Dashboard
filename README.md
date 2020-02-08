@@ -7,8 +7,7 @@
 | -------------------------------------------------------------- | ----------------------------------- | ---------------------------------------------------- |
 | Admin Panel                                   | Manage your bot from the admin panel.| [Example](https://sharex.greatplainsmodding.com/x0X8) 
 | Cusotm Mods             | Anyone that knows JavaScript can create mods for the dashboard.)| [Example]() 
-| Dashboard | People can login to the dashboard and invite your bot.| [Example](https://sharex.greatplainsmodding.com/XyUo
-)
+| Dashboard | People can login to the dashboard and invite your bot.| [Example](https://sharex.greatplainsmodding.com/XyUo)
 | Landing Page   | You need a website to show off your awsome bot!| [Example](https://sharex.greatplainsmodding.com/llvs) 
 
 ## Links
