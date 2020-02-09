@@ -1,9 +1,18 @@
 module.exports = {
     // Used to set the name of the mod. Note this is what will be shown on the dashboard.
-    name: "Bot Channel Count",
+    name: "Bot Guild Count",
 
-    // true if this is a mod for the dashboard and false if its a mod for the admin panel.
+    // Here you can configure what section you want your mod to show up on the dashboard / admin panel.
+    section: "Bot-Info",
+
+    // true if this is a mod for the dashboard.
     dashboardMod: false,
+
+    // true if this is a mod for the admin panel.
+    adminMod: true,
+
+    // this is used for custom routes / custom pages. Set this to true if this is a mod for routes.
+    routeMod: false,
 
     // You can put your name here and this will show up on the dashboard.
     author: "Zoom",
@@ -12,7 +21,7 @@ module.exports = {
     version: "1.0.0",
 
     // You can set the mods description here and this will show up on the dashboard.
-    short_description: "Returns the bots amount of channels.",
+    short_description: "Returns the bots amount of guilds.",
 
     // If you want to add custom html to the mod set this to true. If not set this to false.
     customHtml: false,
@@ -34,6 +43,6 @@ module.exports = {
 
     // Whenever the command is executed this is the code that will be ran. You can use req to get stuff, note this only works if you add custom html. 
     run: async (client, req, res) => {
-        client.log = `Amount of channels: ${client.channels.size}`
+        client.log = `Amount of guilds: ${client.guilds.array().length}`
     }
 }

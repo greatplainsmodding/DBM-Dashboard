@@ -21,6 +21,7 @@ module.exports = {
 				clientSecret: '',
 				callbackURL: `http://localhost:3000/dashboard/callback`,
 				owner: '',
+				"theme": "default",
 				"navItems": [{
 						"name": "Home Page",
 						"link": "/"

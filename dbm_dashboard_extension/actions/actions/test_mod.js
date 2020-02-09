@@ -2,9 +2,18 @@ module.exports = {
     // Used to set the name of the mod. Note this is what will be shown on the dashboard.
     name: "Current Server",
 
-    // true if this is a mod for the dashboard and false if its a mod for the admin panel.
+    // Here you can configure what section you want your mod to show up on the dashboard / admin panel.
+    section: "Dashboard",
+
+    // true if this is a mod for the dashboard.
     dashboardMod: true,
 
+    // true if this is a mod for the admin panel.
+    adminMod: false,
+
+    // this is used for custom routes / custom pages. Set this to true if this is a mod for routes.
+    routeMod: false,
+    
     // You can put your name here and this will show up on the dashboard.
     author: "Great Plains Modding",
 
