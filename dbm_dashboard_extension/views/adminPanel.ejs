@@ -210,7 +210,7 @@
                 </div>
                 <div class="modal-body" style="border-bottom: none;">
                     <form action="/api/execute/<%= action.name %>?next=true" method="POST">
-                        <%- action.html() %>
+                        <%- action.html(true) %>
                 </div>
                 <div class="modal-footer" style="border-top: none;">
                     <button type="submit" class="btn btn-primary"

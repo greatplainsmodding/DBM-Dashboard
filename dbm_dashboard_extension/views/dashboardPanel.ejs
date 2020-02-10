@@ -46,7 +46,6 @@
                     sections.forEach(data => {
                         if (!addedSections.includes(data)) {
                             addedSections.push(data);
-                            console.log(addedSections.length)
                             %>
                                 <a class="list-group-item list-group-item-action <%  if (addedSections.length == 1) {  %> active <% } %>" id="list-<%= data %>"
                                     data-toggle="list" href="#<%= data %>" role="tab" aria-controls="<%= data %>"
@@ -84,8 +83,6 @@
                                                 sectionMods.push(mod)
                                             }
                                         });
-
-                                        console.log(sectionMods)
                                         
                                         for (i = 0; i < sectionMods.length; i++) { %>
                                         <tr>
@@ -93,7 +90,7 @@
                                             <td><%= sectionMods[i].short_description %></td>
                                             <td><%= sectionMods[i].version %></td>
                                             <td><%= sectionMods[i].author %></td>
-                                            <form action="/api/execute/<%= sectionMods[i].name %>" method="POST" onsubmit="">
+                                            <form action="/dashboard/@me/servers/<%= server.id %>/execute/<%= sectionMods[i].name %>" method="POST" onsubmit="">
                                                 <td><button type="submit" class="btn btn-danger">Execute</button></td>
                                             </form>
                                         </tr>
@@ -129,14 +126,14 @@
 
     <% if (customHtml) { %>
     <div class="modal show" id="customHTMLModal" tabindex="-1" role="dialog" aria-labelledby="customHTML">
-        <div class="modal-dialog" role="document">
+        <div role="document" style="width: <%= action.size().width %>px; margin: auto; padding: 25px;">
             <div class="modal-content darkBackground">
                 <div class="modal-header" style="border-bottom:1px solid #7289DA;">
                     <h3 class="modal-title" style="color: #7289DA" id="customHTML"><%= action.name %></h3>
                 </div>
                 <div class="modal-body" style="border-bottom: none;">
-                    <form action="/api/execute/<%= action.name %>?next=true" method="POST">
-                        <%- action.html() %>
+                    <form action="/dashboard/@me/servers/<%= server.id %>/execute/<%= action.name %>?next=true" method="POST">
+                        <%- action.html(false) %>
                 </div>
                 <div class="modal-footer" style="border-top: none;">
                     <button type="submit" class="btn btn-primary"

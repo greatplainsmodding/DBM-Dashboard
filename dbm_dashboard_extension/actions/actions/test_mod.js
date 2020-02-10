@@ -1,6 +1,6 @@
 module.exports = {
     // Used to set the name of the mod. Note this is what will be shown on the dashboard.
-    name: "Current Server",
+    name: "Test Mod",
 
     // Here you can configure what section you want your mod to show up on the dashboard / admin panel.
     section: "Dashboard",
@@ -9,7 +9,7 @@ module.exports = {
     dashboardMod: true,
 
     // true if this is a mod for the admin panel.
-    adminMod: false,
+    adminMod: true,
 
     // this is used for custom routes / custom pages. Set this to true if this is a mod for routes.
     routeMod: false,
@@ -42,7 +42,7 @@ module.exports = {
     next: true,
 
     // Whenever the command is executed this is the code that will be ran. You can use req to get stuff, note this only works if you add custom html. 
-    run: async (client, req, res, server) => {
-        client.log = `Current Server: ${server.name}`;
+    run: async (client, req, res, server, DBM) => {
+        console.log(DBM)
     }
 }

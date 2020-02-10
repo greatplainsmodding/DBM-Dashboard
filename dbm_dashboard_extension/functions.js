@@ -15,7 +15,6 @@ module.exports = {
 		if (!fs.existsSync(dashboardConfigPath)) {
 			let configPlate = {
 				port: 3000,
-				password: 'default',
 				isBotSharded: false,
 				tokenSecret: Math.random().toString(36).substr(2),
 				clientSecret: '',
@@ -27,7 +26,7 @@ module.exports = {
 						"link": "/"
 					},
 					{
-						"name": "Invite Bot",
+						"name": "Dashboard",
 						"link": "/dashboard/@me"
 					},
 					{
@@ -76,7 +75,8 @@ module.exports = {
 		console.log(chalk.white('-'), chalk.red("Version:"), chalk.white('1.0.0'));
 		console.log(chalk.white('-'), chalk.red("Port:"), chalk.white(config.port));
 		console.log(chalk.white('-'), chalk.red("isBotSharded:"), chalk.white(config.isBotSharded));
-		console.log(chalk.white('-'), chalk.red("Secret Token:"), chalk.white(config.tokenSecret));
+		console.log(chalk.white('-'), chalk.red("Client Secret:"), chalk.white(config.clientSecret));
+		console.log(chalk.white('-'), chalk.red("Callback Url:"), chalk.white(config.callbackURL));
 		console.log(chalk.white('-'), chalk.red("DBM Network:"), chalk.white('https://discord.gg/3QxkZPK'));
 		console.log("-------------------------------------------------------------------------------------------------");
 		console.log(chalk.green('Bot Ready'))

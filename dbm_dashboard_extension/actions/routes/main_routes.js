@@ -85,7 +85,7 @@ module.exports = {
                 customHtml: false,
                 log: DBM.Bot.bot.log,
                 config: config,
-                commandExecuted: false,
+                commandExecuted: DBM.actionsExecuted.get(req.user.id).dashboardCommandExecuted,
                 theme: theme(),
                 sections: section
             });
@@ -217,16 +217,16 @@ module.exports = {
                     data.run(DBM.Bot.bot, req, res, serv);
                     if (data.next) {
                         dashboardCommandExecuted(req, true);
-                        res.redirect(`http://localhost:3000/dashboard/@me/servers/${serv.id}`);
+                        res.redirect(`/dashboard/@me/servers/${serv.id}`);
                     };
                 } else {
-                    res.redirect(`http://localhost:3000/dashboard/@me/servers/${serv.id}/${data.name}`);
+                    res.redirect(`/dashboard/@me/servers/${serv.id}/${data.name}`);
                 };
             } else {
                 data.run(DBM.Bot.bot, req, res, serv);
                 if (data.next) {
                     dashboardCommandExecuted(req, true);
-                    res.redirect(`http://localhost:3000/dashboard/@me/servers/${serv.id}/${data.name}`);
+                    res.redirect(`/dashboard/@me/servers/${serv.id}/${data.name}`);
                 };
             };
         });

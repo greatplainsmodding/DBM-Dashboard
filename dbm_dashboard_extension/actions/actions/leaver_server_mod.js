@@ -1,15 +1,15 @@
 module.exports = {
     // Used to set the name of the mod. Note this is what will be shown on the dashboard.
-    name: "Leave Guild",
+    name: "Leave Server",
 
     // Here you can configure what section you want your mod to show up on the dashboard / admin panel.
-    section: "Dashboard",
+    section: "Other",
 
     // true if this is a mod for the dashboard.
-    dashboardMod: false,
+    dashboardMod: true,
 
     // true if this is a mod for the admin panel.
-    adminMod: true,
+    adminMod: false,
 
     // this is used for custom routes / custom pages. Set this to true if this is a mod for routes.
     routeMod: false,
@@ -18,13 +18,13 @@ module.exports = {
     author: "Great Plains Modding",
 
     // Here you define the version of the mod.
-    version: "1.0.0", 
+    version: "1.0.0",
 
     // You can set the mods description here and this will show up on the dashboard.
-    short_description: "Leaves a specified server.",
+    short_description: "Leaves the current server server.",
 
     // If you want to add custom html to the mod set this to true. If not set this to false.
-    customHtml: true,
+    customHtml: false,
 
     // Change the width of the popup. 
     size: function () {
@@ -52,16 +52,8 @@ module.exports = {
     next: true,
 
     // Whenever the command is executed this is the code that will be ran. You can use req to get stuff, note this only works if you add custom html. 
-    run: async (client, req) => {
-        let server = undefined;
-        if (req.body.type == 'id') server = client.guilds.find(server => server.id === req.body.server);
-        if (!server) server = client.guilds.find(server => server.name === req.body.server);
-
-        if (!server) return client.log = 'I couldn\'t find this server, please make sure you have the right ID or name.';
-
+    run: async (client, req, res, server) => {
+        client.log = `Successfully left ${server.name} (${server.id})`;
         server.leave();
-        let serverFound = server
-        client.log = `Successfully left ${serverFound.name} (${serverFound.id})`
-        
     }
 }
