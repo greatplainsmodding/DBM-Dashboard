@@ -221,39 +221,37 @@ module.exports = {
 			dashboardConfig,
 			ready
 		} = require('../extensions/dbm_dashboard_extension/functions');
+		const config = dashboardConfig()
+
+
+
 		// Mini module handler
-		DBM.require = function (packageName) {
-			if (dashboardConfig.isGlitch) {
-				console.log('running for glitch')
-				const path = require("path");
+		const path = require("path");
+		moduleRequire = function (packageName) {
+			if (config.isGlitch) {
 				const nodeModulesPath = path.join(__dirname, "../node_modules", packageName);
 				return require(nodeModulesPath)
 			} else {
-				const path = require("path");
 				const nodeModulesPath = path.join(__dirname, "dbm_dashboard_extension", "node_modules", packageName);
 				return require(nodeModulesPath)
 			}
 		};
 
-		const express = require('express'),
-			{
-				fs,
-				readdirSync
-			} = require("fs"),
-			path = require('path'),
-			chalk = require('chalk'),
-			bodyParser = require('body-parser'),
-			cookieParser = require('cookie-parser'),
-			ejs = require('ejs'),
-			Strategy = require('passport-discord').Strategy,
-			session = require('express-session'),
-			passport = require('passport');
+		const express = moduleRequire('express'),
+			{ fs, readdirSync } = require("fs"),
+			chalk = moduleRequire('chalk'),
+			bodyParser = moduleRequire('body-parser'),
+			cookieParser = moduleRequire('cookie-parser'),
+			ejs = moduleRequire('ejs'),
+			Strategy = moduleRequire('passport-discord').Strategy,
+			session = moduleRequire('express-session'),
+			passport = moduleRequire('passport');
 
 		var app = express();
-		const config = dashboardConfig()
 		app.themes = new Map();
 		app.routes = new Map();
 		app.actions = new Map();
+
 		// Pulls all of the files from actions to be used as mods!
 		readdirSync('./extensions/dbm_dashboard_extension/actions').forEach(dir => {
 			const actions = readdirSync(`./extensions/dbm_dashboard_extension/actions/${dir}/`).filter(file => file.endsWith('.js'));
@@ -264,6 +262,7 @@ module.exports = {
 			}
 		});
 
+		// Route handler
 		readdirSync('./extensions/dbm_dashboard_extension/actions').forEach(dir => {
 			const actions = readdirSync(`./extensions/dbm_dashboard_extension/actions/${dir}/`).filter(file => file.endsWith('.js'));
 			for (let file of actions) {
