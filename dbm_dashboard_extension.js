@@ -44,7 +44,7 @@ module.exports = {
 	//---------------------------------------------------------------------
 
 	fields: [
-		"port", "clientSecret", "callbackURL", "owner", "supportServer", "isGlitch"
+		"port", "clientSecret", "callbackURL", "owner", "supportServer"
 	],
 
 	//---------------------------------------------------------------------
@@ -58,8 +58,7 @@ module.exports = {
 		clientSecret: require('../extensions/dbm_dashboard_extension/config.json').clientSecret,
 		callbackURL: require('../extensions/dbm_dashboard_extension/config.json').callbackURL,
 		owner: require('../extensions/dbm_dashboard_extension/config.json').owner,
-		supportServer: require('../extensions/dbm_dashboard_extension/config.json').supportServer,
-		isGlitch: require('../extensions/dbm_dashboard_extension/config.json').isGlitch
+		supportServer: require('../extensions/dbm_dashboard_extension/config.json').supportServer
 	},
 
 	//---------------------------------------------------------------------
