@@ -1,6 +1,6 @@
 # DBM Dashboard
 
-> Manage your DBM bot fron any place.
+> Manage your DBM bot fron any place. Note this is branch is in beta testing and some stuff may not work in intended.
 
 
 | DBM Dashboard Features                                                | Description                         |                                                      |                                    
