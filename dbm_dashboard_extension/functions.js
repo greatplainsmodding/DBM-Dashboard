@@ -3,6 +3,7 @@ const settings = require('./config.json');
 // Mini module handler
 requireModule = function (packageName) {
 	const path = require('path')
+
 	if (settings.isGlitch) {
 		const nodeModulesPath = path.join(__dirname, "../../node_modules", packageName);
 		return require(nodeModulesPath)
