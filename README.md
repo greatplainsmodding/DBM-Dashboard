@@ -13,7 +13,8 @@
 ## Links
 > [Developer Portal](https://discordapp.com/developers)<br>
 > [DBM Network](https://discord.gg/3QxkZPK)
-> [Video Tutorial](https://www.youtube.com/watch?v=7Czpi7efPnw&feature=youtu.be)
+> [Video Tutorial](https://youtu.be/X1hDV2t_Qoo)
+> [Glitch Tutorial](https://youtu.be/Ey5R1IdV9FA)
 
 ## Step 1
 > Download the needed files. You can download them through CMD if you have git installed. After you have downloaded the files, unzip them and paste them into your bots extensions folder. <br> <code>git clone https://github.com/greatplainsmodding/DBM-Dashboard.git</code>
