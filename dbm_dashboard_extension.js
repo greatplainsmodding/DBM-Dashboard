@@ -147,14 +147,15 @@ module.exports = {
 				supportServer: data.supportServer,
 				introText: config.introText,
 				footerText: config.footerText,
-				theme: "default"
+				theme: "default",
+				isGlitch: config.isGlitch
 			};
 
 			configNew.featureOne = config.featureOne;
 			configNew.featureTwo = config.featureTwo;
 			configNew.featureThree = config.featureThree;
 			configNew.featureFour = config.featureFour;
-			configNew.navItems = config.navItems
+			configNew.navItems = config.navItems;
 
 			let settings = JSON.stringify(configNew);
 			require("fs").writeFileSync(dashboardConfigPath, settings, "utf8");
