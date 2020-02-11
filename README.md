@@ -47,7 +47,7 @@
 ```
 
 ## Bugs
-> After you make a change through the extension in DBM and reopen it, it wont update.
+> Did you find a bug? You can report bugs [here](https://github.com/greatplainsmodding/DBM-Dashboard/issues).
 
 ## Other Info
 > <b>Creating Mods:</b> Just like DBM you can create mods for DBM Dashboard! Its just like DBM.<br>
