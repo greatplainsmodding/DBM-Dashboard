@@ -13,8 +13,8 @@
 
 ## Links
 > [Developer Portal](https://discordapp.com/developers)<br>
-> [DBM Network](https://discord.gg/3QxkZPK)
-> [Video Tutorial](https://youtu.be/X1hDV2t_Qoo)
+> [DBM Network](https://discord.gg/3QxkZPK)<br>
+> [Video Tutorial](https://youtu.be/X1hDV2t_Qoo)<br>
 > [Glitch Tutorial](https://youtu.be/Ey5R1IdV9FA)
 
 ## Step 1
