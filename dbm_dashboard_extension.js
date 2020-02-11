@@ -132,7 +132,6 @@ module.exports = {
 		data.callbackURL = String(document.getElementById("callbackURL").value);
 		data.owner = String(document.getElementById("owner").value);
 		data.supportServer = String(document.getElementById("supportServer").value);
-		data.isGlitch = String(document.getElementById("isGlitch").value);
 
 		try {
 			const config = require('./dbm_dashboard_extension/config.json');
@@ -148,8 +147,7 @@ module.exports = {
 				supportServer: data.supportServer,
 				introText: config.introText,
 				footerText: config.footerText,
-				theme: "default",
-				isGlitch: data.isGlitch
+				theme: "default"
 			};
 
 			configNew.featureOne = config.featureOne;
