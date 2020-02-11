@@ -1,7 +1,9 @@
 # DBM Dashboard
 
 > Manage your DBM bot fron any place.
-
+> You can find user created mods [here](https://github.com/greatplainsmodding/DBM-Dashboard-Mods).
+> Want to try out new features? You can install the beta version [here](https://github.com/greatplainsmodding/DBM-Dashboard)
+> If you find any bugs please report them [here](https://github.com/greatplainsmodding/DBM-Dashboard/issues).
 
 | DBM Dashboard Features                                                | Description                         |                                                      |                                    
 | -------------------------------------------------------------- | ----------------------------------- | ---------------------------------------------------- |
