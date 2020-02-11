@@ -2,13 +2,13 @@ module.exports = {
     //----------------------------------------------------------------------------------
     // Used to set the name of the mod / extension. 
     // Note if this is an extension it cant have a space or it will not work.
-    name: "Restart Bot",
+    name: "TestExtension",
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
     // Here you can configure what section you want your mod to show up on the dashboard / admin panel. 
     // If this is an extension or route mod you can leave this blank.
-    section: "Dashboard",
+    section: "",
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ module.exports = {
 
     //----------------------------------------------------------------------------------
     // true if this is a mod for the admin panel.
-    adminMod: true,
+    adminMod: false,
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ module.exports = {
 
     //----------------------------------------------------------------------------------
     // Toggle this if you are creating a extension.
-    extensionMod: false,
+    extensionMod: true,
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ module.exports = {
     //----------------------------------------------------------------------------------
     // You can set the mods description. 
     // You only need this if its a mod for the admin panel or dashboard.
-    short_description: "Restarts the bot.",
+    short_description: "",
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ module.exports = {
     // Also if you are using this mod for a custom route you can place your html code here and this is what will show up on the page. 
     // Note this is not inside of form tags if this is a custom route.
     html: function () {
-        return ``
+        return `<p>hello world</p>`
     },
     //----------------------------------------------------------------------------------
 
@@ -90,9 +90,7 @@ module.exports = {
     // Whenever the command is executed this is the code that will be ran. 
     // You can use req to get stuff, note this only works if you add custom html. 
     run: async (app, config, DBM, client, req, res, server) => {
-        client.destroy().then(client.log = `Restarting bot...`);
-        const child = require('child_process');
-        child.execSync(`node bot.js`);
+
     }
     //----------------------------------------------------------------------------------
 }

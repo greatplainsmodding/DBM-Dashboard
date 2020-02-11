@@ -1,15 +1,16 @@
 {
     "port": "3000",
     "isBotSharded": false,
-    "tokenSecret": "60rkv8zfwpl",
+    "tokenSecret": "",
     "clientSecret": "",
     "callbackURL": "http://localhost:3000/dashboard/callback",
     "owner": "",
-    "theme": "default",
     "inviteLink": "/dashboard/@me",
     "supportServer": "https://discord.gg/3QxkZPK",
     "introText": "You can replace this text with whatever you want. After you do that this will automatically show up on your website!",
     "footerText": "You can replace this text with whatever you want. After you do that this will automatically show up on your website!",
+    "theme": "default",
+    "isGlitch": false,
     "featureOne": {
         "name": "Feature One",
         "description": "You can replace this text with whatever you want. After you do that this will automatically show up on your website!"

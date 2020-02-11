@@ -60,6 +60,15 @@
                                 </a>
                             <%
                         }
+                    });
+
+                    extensions.forEach(extension => {
+                        %>
+                        <a class="list-group-item list-group-item-action" id="list-<%= extension.name %>"
+                            data-toggle="list" href="#<%= extension.name %>" role="tab" aria-controls="<%= extension.name %>"
+                            style="background-color: #2C2F33; color: white;"><%= extension.name %>
+                        </a>
+                    <%
                     })
                      %>
                     <a class="list-group-item list-group-item-action" id="list-webPanel" data-toggle="list"
@@ -72,10 +81,19 @@
             <div class="col-10">
                 <div class="tab-content" id="nav-tabContent">
                     <% 
+
                     let addedSectionsContent = []
                     sections.forEach(data => {
                         if (!addedSectionsContent.includes(data)) {
                             addedSectionsContent.push(data);
+
+
+                            let sectionMods = [];
+                            dashboardMods.forEach(mod => {
+                                if (data == mod.section) {
+                                    sectionMods.push(mod)
+                                }
+                            });
                             %>
                             <div class="tab-pane fade show <%  if (addedSectionsContent.length == 1) {  %> active <% } %>" id="<%= data %>" role="tabpanel" aria-labelledby="list-<%= data %>">
                                 <table class="table table-striped table-dark">
@@ -88,12 +106,7 @@
                                             <th></th>
                                         </tr>
                                         <% 
-                                        let sectionMods = [];
-                                        dashboardMods.forEach(mod => {
-                                            if (data == mod.section) {
-                                                sectionMods.push(mod)
-                                            }
-                                        });
+
 
                                         
                                         for (i = 0; i < sectionMods.length; i++) { %>
@@ -114,6 +127,11 @@
                         }
                     })
                      %>
+                     <% extensions.forEach(extension => { %>
+                        <div class="tab-pane fade show" id="<%= extension.name %>" role="tabpanel" aria-labelledby="list-<%= extension.name %>">
+                            <%- extension.html() %>
+                        </div>
+                    <% }) %>
                     <div class="tab-pane fade" id="webPanel" role="tabpanel" aria-labelledby="list-webPanel">
                         <form action="/api/admin/web" method="POST" class="needs-validation">
                             <div class="form-group">

@@ -1,48 +1,97 @@
 module.exports = {
-    // Used to set the name of the mod. Note this is what will be shown on the dashboard.
-    name: "Text Route",
+    //----------------------------------------------------------------------------------
+    // Used to set the name of the mod / extension. 
+    // Note if this is an extension it cant have a space or it will not work.
+    name: "Main Route",
+    //----------------------------------------------------------------------------------
 
-    // Here you can configure what section you want your mod to show up on the dashboard / admin panel.
-    section: "Dashboard",
+    //----------------------------------------------------------------------------------
+    // Here you can configure what section you want your mod to show up on the dashboard / admin panel. 
+    // If this is an extension or route mod you can leave this blank.
+    section: "",
+    //----------------------------------------------------------------------------------
 
+    //----------------------------------------------------------------------------------
     // true if this is a mod for the dashboard.
     dashboardMod: false,
+    //----------------------------------------------------------------------------------
 
+    //----------------------------------------------------------------------------------
     // true if this is a mod for the admin panel.
     adminMod: false,
+    //----------------------------------------------------------------------------------
 
-    // true if this is a mod for the admin panel.
+    //----------------------------------------------------------------------------------
+    // true if this is a mod for routes.
     routeMod: true,
+    //----------------------------------------------------------------------------------
 
-    // You can put your name here and this will show up on the dashboard.
+    //----------------------------------------------------------------------------------
+    // If this route mod will only have 1 url you can set the url here. 
+    // If not you will need to create your own routes in the run section.
+    routeUrl: '',
+    //----------------------------------------------------------------------------------
+
+    //----------------------------------------------------------------------------------
+    // Toggle this if you are creating a extension.
+    extensionMod: false,
+    //----------------------------------------------------------------------------------
+
+    //----------------------------------------------------------------------------------
+    // You can put your name here or whoever it was created by.
     author: "Great Plains Modding",
+    //----------------------------------------------------------------------------------
 
-    // Here you define the version of the mod.
+    //----------------------------------------------------------------------------------
+    // Here you define the version of the mod / extension.
     version: "1.0.0",
+    //----------------------------------------------------------------------------------
 
-    // You can set the mods description here and this will show up on the dashboard.
-    short_description: "Returns the bots ping.",
+    //----------------------------------------------------------------------------------
+    // You can set the mods description. 
+    // You only need this if its a mod for the admin panel or dashboard.
+    short_description: "",
+    //----------------------------------------------------------------------------------
 
-    // If you want to add custom html to the mod set this to true. If not set this to false.
+    //----------------------------------------------------------------------------------
+    // If this is for a mod and you want to add custom html to the mod set this to true.
+    // If you are using this as a custom route you can leave this true or false as it will still pull the custom html.
     customHtml: false,
+    //----------------------------------------------------------------------------------
 
-    // Change the width of the popup. 
+    //----------------------------------------------------------------------------------
+    // Change the width of the popup for mods.
     size: function () {
         return {
             width: 700
         };
     },
+    //----------------------------------------------------------------------------------
 
-    // Here you can add your custom html! Note if customHtml is set to false this will now show up. This is also valid bootstrap. Also note that this html code will be placed inside of <form> so if you want to retrieve the data all you need to do is add the fields.
+    //----------------------------------------------------------------------------------
+    // Here you can add your custom html! 
+    // Note if customHtml is set to false this will now show up. 
+    // This is also valid bootstrap. Also note that this html code will be placed inside of <form> so if you want to retrieve the data all you need to do is add the fields.
+    // Also if you are using this mod for a custom route you can place your html code here and this is what will show up on the page. 
+    // Note this is not inside of form tags if this is a custom route.
     html: function () {
         return ``
     },
+    //----------------------------------------------------------------------------------
 
-    // This is used to move on to the next action. When the code is ran it will return to the dashboard but if you want to redirect you need to set this to false.
+    //----------------------------------------------------------------------------------
+    // This is used to move on to the next action. 
+    // When the code is ran it will return to the dashboard but if you want to redirect you need to set this to false.
     next: true,
+    //----------------------------------------------------------------------------------
 
-    // Whenever the command is executed this is the code that will be ran. You can use req to get stuff, note this only works if you add custom html. 
-    run: async (app, config, DBM, dashboardConfig, client) => {
+
+    //----------------------------------------------------------------------------------
+    // Whenever the command is executed this is the code that will be ran. 
+    // You can use req to get stuff, note this only works if you add custom html. 
+    run: async (app, config, DBM, client, req, res, server) => {
+        client = DBM.Bot.bot
+        const {dashboardConfig} = require('../../functions.js')
         app.get('/', function (req, res) {
             res.render('homePage', {
                 config: config,
@@ -131,11 +180,17 @@ module.exports = {
             });
             if (!DBM.Bot.bot.log) DBM.Bot.bot.log = 'Command Executed';
             let actions = app.actions;
-            let section = []
+            let section = [];
+            let extensions = [];
             actions.forEach(action => {
                 if (!section.includes(action.section) && action.routeMod == false && action.adminMod == true) {
-                    section.push(action.section)
-                }
+                    section.push(action.section);
+                };
+            });
+            actions.forEach(action => {
+                if (action.extensionMod) {
+                    extensions.push(action);
+                };
             });
             res.render('adminPanel', {
                 dashboardMods: dashboardMods,
@@ -145,7 +200,9 @@ module.exports = {
                 client: DBM.Bot.bot,
                 config: config,
                 theme: theme(),
-                sections: section
+                sections: section,
+                extensions: extensions,
+                app: app
             });
             if (req.user.commandExecuted) DBM.Bot.bot.log = 'Command Executed';
             adminCommandExecuted(req, false);
@@ -160,11 +217,17 @@ module.exports = {
                 if (data.adminMod == true) dashboardMods.push(data)
             });
             let actions = app.actions;
-            let section = []
+            let section = [];
+            let extensions = [];
             actions.forEach(action => {
                 if (!section.includes(action.section) && action.routeMod == false && action.adminMod == true) {
                     section.push(action.section)
                 }
+            });
+            actions.forEach(action => {
+                if (action.extensionMod) {
+                    extensions.push(action);
+                };
             });
             res.render('adminPanel', {
                 dashboardMods: dashboardMods,
@@ -175,20 +238,22 @@ module.exports = {
                 client: DBM.Bot.bot,
                 config: config,
                 theme: theme(),
-                sections: section
+                sections: section,
+                extensions: extensions,
+                app: app
             });
             adminCommandExecuted(req, false);
         });
-
+        //app, config, DBM, dashboardConfig, client
         app.post('/api/execute/:action', checkAuthOwner, function (req, res) {
             var next = req.query['next'];
             if (!next) next = false;
             var action = req.params.action;
             let data = app.actions.get(action);
-
+            let serv;
             if (data.customHtml) {
                 if (next == 'true') {
-                    data.run(DBM.Bot.bot, req, res);
+                    data.run(app, config, DBM, DBM.Bot.bot, req, res, serv);
                     if (data.next) {
                         adminCommandExecuted(req, true);
                         res.redirect('/dashboard/admin');
@@ -197,7 +262,7 @@ module.exports = {
                     res.redirect(`/dashboard/admin/${data.name}`);
                 };
             } else {
-                data.run(DBM.Bot.bot, req, res);
+                data.run(app, config, DBM, DBM.Bot.bot, req, res, serv);
                 if (data.next) {
                     adminCommandExecuted(req, true);
                     res.redirect('/dashboard/admin');
@@ -214,7 +279,7 @@ module.exports = {
 
             if (data.customHtml) {
                 if (next == 'true') {
-                    data.run(DBM.Bot.bot, req, res, serv);
+                    data.run(app, config, DBM, DBM.Bot.bot, req, res, serv);
                     if (data.next) {
                         dashboardCommandExecuted(req, true);
                         res.redirect(`/dashboard/@me/servers/${serv.id}`);
@@ -223,7 +288,7 @@ module.exports = {
                     res.redirect(`/dashboard/@me/servers/${serv.id}/${data.name}`);
                 };
             } else {
-                data.run(DBM.Bot.bot, req, res, serv);
+                data.run(app, config, DBM, DBM.Bot.bot, req, res, serv);
                 if (data.next) {
                     dashboardCommandExecuted(req, true);
                     res.redirect(`/dashboard/@me/servers/${serv.id}/${data.name}`);
@@ -281,4 +346,5 @@ module.exports = {
             return theme
         }
     }
+    //----------------------------------------------------------------------------------
 }

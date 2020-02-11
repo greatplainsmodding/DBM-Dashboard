@@ -1,8 +1,16 @@
+const settings = require('./config.json');
+
+// Mini module handler
 requireModule = function (packageName) {
-	const path = require("path");
-	const nodeModulesPath = path.join(__dirname, "node_modules", packageName);
-	return require(nodeModulesPath)
-}
+	const path = require('path')
+	if (settings.isGlitch) {
+		const nodeModulesPath = path.join(__dirname, "../../node_modules", packageName);
+		return require(nodeModulesPath)
+	} else {
+		const nodeModulesPath = path.join(__dirname, "node_modules", packageName);
+		return require(nodeModulesPath)
+	}
+};
 
 const chalk = requireModule('chalk'),
 path = requireModule('path'),
@@ -20,39 +28,40 @@ module.exports = {
 				clientSecret: '',
 				callbackURL: `http://localhost:3000/dashboard/callback`,
 				owner: '',
-				"theme": "default",
-				"navItems": [{
-						"name": "Home Page",
-						"link": "/"
+				theme: "default",
+				isGlitch: false,
+				navItems: [{
+						name: "Home Page",
+						link: "/"
 					},
 					{
-						"name": "Dashboard",
-						"link": "/dashboard/@me"
+						name: "Dashboard",
+						link: "/dashboard/@me"
 					},
 					{
-						"name": "Admin Panel",
-						"link": "/dashboard/admin"
+						name: "Admin Panel",
+						link: "/dashboard/admin"
 					}
 				],
-				"inviteLink": "/dashboard/@me",
-				"supportServer": "https://discord.gg/3QxkZPK",
-				"introText": "You can replace this text with whatever you want. After you do that this will automatically show up on your website!",
-				"footerText": "You can replace this text with whatever you want. After you do that this will automatically show up on your website!",
-				"featureOne": {
-					"name": "Feature One",
-					"description": "You can replace this text with whatever you want. After you do that this will automatically show up on your website!"
+				inviteLink: "/dashboard/@me",
+				supportServer: "https://discord.gg/3QxkZPK",
+				introText: "You can replace this text with whatever you want. After you do that this will automatically show up on your website!",
+				footerText: "You can replace this text with whatever you want. After you do that this will automatically show up on your website!",
+				featureOne: {
+					name: "Feature One",
+					description: "You can replace this text with whatever you want. After you do that this will automatically show up on your website!"
 				},
-				"featureTwo": {
-					"name": "Feature Two",
-					"description": "You can replace this text with whatever you want. After you do that this will automatically show up on your website!"
+				featureTwo: {
+					name: "Feature Two",
+					description: "You can replace this text with whatever you want. After you do that this will automatically show up on your website!"
 				},
-				"featureThree": {
-					"name": "Feature Three",
-					"description": "You can replace this text with whatever you want. After you do that this will automatically show up on your website!"
+				featureThree: {
+					name: "Feature Three",
+					description: "You can replace this text with whatever you want. After you do that this will automatically show up on your website!"
 				},
-				"featureFour": {
-					"name": "Feature Four",
-					"description": "You can replace this text with whatever you want. After you do that this will automatically show up on your website!"
+				featureFour: {
+					name: "Feature Four",
+					description: "You can replace this text with whatever you want. After you do that this will automatically show up on your website!"
 				}
 			}
 			let settings = JSON.stringify(configPlate)

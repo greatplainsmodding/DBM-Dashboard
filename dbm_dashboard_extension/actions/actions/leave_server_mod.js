@@ -2,7 +2,7 @@ module.exports = {
     //----------------------------------------------------------------------------------
     // Used to set the name of the mod / extension. 
     // Note if this is an extension it cant have a space or it will not work.
-    name: "Restart Bot",
+    name: "Leave Guild",
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -50,13 +50,13 @@ module.exports = {
     //----------------------------------------------------------------------------------
     // You can set the mods description. 
     // You only need this if its a mod for the admin panel or dashboard.
-    short_description: "Restarts the bot.",
+    short_description: "Leaves a specified server.",
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
     // If this is for a mod and you want to add custom html to the mod set this to true.
     // If you are using this as a custom route you can leave this true or false as it will still pull the custom html.
-    customHtml: false,
+    customHtml: true,
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -75,8 +75,17 @@ module.exports = {
     // Also if you are using this mod for a custom route you can place your html code here and this is what will show up on the page. 
     // Note this is not inside of form tags if this is a custom route.
     html: function () {
-        return ``
-    },
+        return `
+        <div class="form-group">
+            <p>Find By:</p>
+            <select class="form-control" name="type">
+                <option selected value="id">Guild ID</option>
+                <option value="name">Guild Name</option>
+            </select><br>
+            <p>Guild ID / Name:</p>
+            <input class="form-control" name="server" rows="4" required>
+        </div>
+        `    },
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -90,9 +99,12 @@ module.exports = {
     // Whenever the command is executed this is the code that will be ran. 
     // You can use req to get stuff, note this only works if you add custom html. 
     run: async (app, config, DBM, client, req, res, server) => {
-        client.destroy().then(client.log = `Restarting bot...`);
-        const child = require('child_process');
-        child.execSync(`node bot.js`);
+        let findServer;
+        if (req.body.type == 'id') findServer = client.guilds.find(server => server.id === req.body.server);
+        if (!findServer) findServer = client.guilds.find(server => server.name === req.body.server);
+        if (!findServer) return client.log = 'I couldn\'t find this server, please make sure you have the right ID or name.';
+        findServer.leave();
+        client.log = `Successfully left ${server.name} (${server.id})`;
     }
     //----------------------------------------------------------------------------------
 }

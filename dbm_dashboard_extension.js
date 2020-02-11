@@ -44,7 +44,7 @@ module.exports = {
 	//---------------------------------------------------------------------
 
 	fields: [
-		"port", "clientSecret", "callbackURL", "owner", "supportServer"
+		"port", "clientSecret", "callbackURL", "owner", "supportServer", "isGlitch"
 	],
 
 	//---------------------------------------------------------------------
@@ -58,7 +58,8 @@ module.exports = {
 		clientSecret: require('../extensions/dbm_dashboard_extension/config.json').clientSecret,
 		callbackURL: require('../extensions/dbm_dashboard_extension/config.json').callbackURL,
 		owner: require('../extensions/dbm_dashboard_extension/config.json').owner,
-		supportServer: require('../extensions/dbm_dashboard_extension/config.json').supportServer
+		supportServer: require('../extensions/dbm_dashboard_extension/config.json').supportServer,
+		isGlitch: require('../extensions/dbm_dashboard_extension/config.json').isGlitch
 	},
 
 	//---------------------------------------------------------------------
@@ -127,27 +128,29 @@ module.exports = {
 	//---------------------------------------------------------------------
 
 	close: function (document, data) {
-        data.port = String(document.getElementById("port").value);
+		data.port = String(document.getElementById("port").value);
 		data.clientSecret = String(document.getElementById("clientSecret").value);
 		data.callbackURL = String(document.getElementById("callbackURL").value);
-        data.owner = String(document.getElementById("owner").value);
+		data.owner = String(document.getElementById("owner").value);
 		data.supportServer = String(document.getElementById("supportServer").value);
-		
+		data.isGlitch = String(document.getElementById("isGlitch").value);
+
 		try {
 			const config = require('./dbm_dashboard_extension/config.json');
 			const dashboardConfigPath = require("path").join(__dirname, "../extensions", "dbm_dashboard_extension", "config.json");
 			const configNew = {
-				"port": data.port,
-				"isBotSharded": false,
-				"tokenSecret": Math.random().toString(36).substr(2),
-				"clientSecret": data.clientSecret,
-				"callbackURL": data.callbackURL,
-				"owner": data.owner,
-				"inviteLink": "/dashboard/@me",
-				"supportServer": data.supportServer,
-				"introText": config.introText,
-				"footerText": config.footerText,
-				"theme": "default",
+				port: data.port,
+				isBotSharded: false,
+				tokenSecret: Math.random().toString(36).substr(2),
+				clientSecret: data.clientSecret,
+				callbackURL: data.callbackURL,
+				owner: data.owner,
+				inviteLink: "/dashboard/@me",
+				supportServer: data.supportServer,
+				introText: config.introText,
+				footerText: config.footerText,
+				theme: "default",
+				isGlitch: data.isGlitch
 			};
 
 			configNew.featureOne = config.featureOne;
@@ -216,31 +219,43 @@ module.exports = {
 		DBM.lastPage = new Map();
 		DBM.actionsExecuted = new Map();
 
+		const {
+			dashboardConfig,
+			ready
+		} = require('../extensions/dbm_dashboard_extension/functions');
 		// Mini module handler
 		DBM.require = function (packageName) {
-			const path = require("path");
-			const nodeModulesPath = path.join(__dirname, "dbm_dashboard_extension", "node_modules", packageName);
-			return require(nodeModulesPath)
-		}
+			if (dashboardConfig.isGlitch) {
+				console.log('running for glitch')
+				const path = require("path");
+				const nodeModulesPath = path.join(__dirname, "../node_modules", packageName);
+				return require(nodeModulesPath)
+			} else {
+				const path = require("path");
+				const nodeModulesPath = path.join(__dirname, "dbm_dashboard_extension", "node_modules", packageName);
+				return require(nodeModulesPath)
+			}
+		};
 
-		const express = DBM.require('express'),
-			{ fs, readdirSync } = require("fs"),
-			path = DBM.require('path'),
-			chalk = DBM.require('chalk'),
-			bodyParser = DBM.require('body-parser'),
-			cookieParser = DBM.require('cookie-parser'),
-			ejs = DBM.require('ejs'),
-			Strategy = DBM.require('passport-discord').Strategy,
-			session = DBM.require('express-session'),
-			passport = DBM.require('passport'),
-			{ dashboardConfig, ready } = require('../extensions/dbm_dashboard_extension/functions');
+		const express = require('express'),
+			{
+				fs,
+				readdirSync
+			} = require("fs"),
+			path = require('path'),
+			chalk = require('chalk'),
+			bodyParser = require('body-parser'),
+			cookieParser = require('cookie-parser'),
+			ejs = require('ejs'),
+			Strategy = require('passport-discord').Strategy,
+			session = require('express-session'),
+			passport = require('passport');
 
 		var app = express();
-		var config = dashboardConfig()
+		const config = dashboardConfig()
 		app.themes = new Map();
 		app.routes = new Map();
 		app.actions = new Map();
-
 		// Pulls all of the files from actions to be used as mods!
 		readdirSync('./extensions/dbm_dashboard_extension/actions').forEach(dir => {
 			const actions = readdirSync(`./extensions/dbm_dashboard_extension/actions/${dir}/`).filter(file => file.endsWith('.js'));
@@ -346,7 +361,7 @@ module.exports = {
 				}
 				res.redirect('/login');
 			}
-	
+
 			function checkAuthOwner(req, res, next) {
 				if (req.isAuthenticated()) {
 					if (req.user.id == config.owner) {
@@ -354,22 +369,26 @@ module.exports = {
 					} else res.redirect('/dashboard/@me');
 				} else res.redirect('/login');
 			}
-	
+
 			function adminCommandExecuted(req, commandExecuted) {
-				let data = { adminCommandExecuted: commandExecuted }
+				let data = {
+					adminCommandExecuted: commandExecuted
+				}
 				DBM.actionsExecuted.set(req.user.id, data);
 			};
-	
+
 			function dashboardCommandExecuted(req, dashboardCommandExecuted) {
-				let data = { dashboardCommandExecuted: dashboardCommandExecuted }
+				let data = {
+					dashboardCommandExecuted: dashboardCommandExecuted
+				}
 				DBM.actionsExecuted.set(req.user.id, data);
 			};
-	
+
 			function theme() {
 				let theme = app.themes.get(config.theme);
 				return theme
 			}
-			
+
 			async function sections() {
 				let actions = app.actions;
 				let section = []
