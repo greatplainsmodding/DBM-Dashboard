@@ -29,6 +29,21 @@
 ## Step 4
 > Now to configure the dashboard! Navigate to <code>http://localhost:3000/dashboard/admin</code> and here you can change the text for the landing page located here <code>http://localhost:3000/</code>
 
+## Glitch
+```
+    "body-parser": "^1.19.0",
+    "chalk": "^3.0.0",
+    "figlet": "^1.2.4",
+    "cookie-parser": "^1.4.4",
+    "ejs": "^3.0.1",
+    "express": "^4.17.1",
+    "express-session": "^1.17.0",
+    "fs": "0.0.1-security",
+    "passport": "^0.4.1",
+    "passport-discord": "^0.1.3",
+    "path": "^0.12.7"
+```
+
 ## Bugs
 > After you make a change through the extension in DBM and reopen it, it wont update.
 
