@@ -95,7 +95,10 @@ module.exports = {
     // Whenever the command is executed this is the code that will be ran. 
     // You can use req to get stuff, note this only works if you add custom html. 
     run: async (app, config, DBM, client, req, res, server) => {
+<<<<<<< HEAD
         console.log(DBM)
+=======
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
         try {
             let evaled = eval(req.body.code);
             if (typeof evaled !== "string") evaled = require("util").inspect(evaled);

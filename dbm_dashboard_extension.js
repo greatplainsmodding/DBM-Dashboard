@@ -43,7 +43,9 @@ module.exports = {
 	// are also the names of the fields stored in the command's/event's JSON data.
 	//---------------------------------------------------------------------
 
-	fields: [],
+	fields: [
+		"port", "clientSecret", "callbackURL", "owner", "supportServer"
+	],
 
 	//---------------------------------------------------------------------
 	// Default Fields
@@ -51,7 +53,13 @@ module.exports = {
 	// The default values of the fields.
 	//---------------------------------------------------------------------
 
-	defaultFields: {},
+	defaultFields: {
+		port: require('../extensions/dbm_dashboard_extension/config.json').port,
+		clientSecret: require('../extensions/dbm_dashboard_extension/config.json').clientSecret,
+		callbackURL: require('../extensions/dbm_dashboard_extension/config.json').callbackURL,
+		owner: require('../extensions/dbm_dashboard_extension/config.json').owner,
+		supportServer: require('../extensions/dbm_dashboard_extension/config.json').supportServer
+	},
 
 	//---------------------------------------------------------------------
 	// Extension Dialog Size
@@ -74,7 +82,6 @@ module.exports = {
 	//---------------------------------------------------------------------
 
 	html: function (data, DBM) {
-		const dashboardConfig = require('../extensions/dbm_dashboard_extension/config.json');
 		return `
 		<div style="overflow-y: scroll; overflow-x: hidden; width: 100%">
 			<div style="padding-left: 15px; padding-top: 3px; width: 100%">
@@ -87,15 +94,15 @@ module.exports = {
 				</div>
 				<div style="float: left; width: 99%;">
 					Port:<br>
-					<input type="text" value="${dashboardConfig.port}" class="round" style="padding-bottom: 3px;" id="port"><br>
+					<input type="text" value="${data.port}" class="round" style="padding-bottom: 3px;" id="port"><br>
 					clientSecret:<br>
-					<input type="text" value="${dashboardConfig.clientSecret}" class="round" id="clientSecret"><br>
+					<input type="text" value="${data.clientSecret}" class="round" id="clientSecret"><br>
 					callbackURL:<br>
-					<input type="text" value="${dashboardConfig.callbackURL}" class="round" id="callbackURL"><br>
+					<input type="text" value="${data.callbackURL}" class="round" id="callbackURL"><br>
 					Owner ID:<br>
-					<input type="text" value="${dashboardConfig.owner}" class="round" id="owner"><br>
+					<input type="text" value="${data.owner}" class="round" id="owner"><br>
 					supportServer:<br>
-					<input type="text" value="${dashboardConfig.supportServer}" class="round" id="supportServer"><br>
+					<input type="text" value="${data.supportServer}" class="round" id="supportServer"><br>
 				</div>
 			</div>
 		</div>`
@@ -120,33 +127,35 @@ module.exports = {
 	//---------------------------------------------------------------------
 
 	close: function (document, data) {
-		try {
-			const port = String(document.getElementById("port").value);
-			const clientSecret = String(document.getElementById("clientSecret").value);
-			const callbackURL = String(document.getElementById("callbackURL").value);
-			const owner = String(document.getElementById("owner").value);
-			const supportServer = String(document.getElementById("supportServer").value);
+		data.port = String(document.getElementById("port").value);
+		data.clientSecret = String(document.getElementById("clientSecret").value);
+		data.callbackURL = String(document.getElementById("callbackURL").value);
+		data.owner = String(document.getElementById("owner").value);
+		data.supportServer = String(document.getElementById("supportServer").value);
 
+		try {
 			const config = require('./dbm_dashboard_extension/config.json');
 			const dashboardConfigPath = require("path").join(__dirname, "../extensions", "dbm_dashboard_extension", "config.json");
 			const configNew = {
-				port: port,
+				port: data.port,
 				isBotSharded: false,
 				tokenSecret: Math.random().toString(36).substr(2),
-				clientSecret: clientSecret,
-				callbackURL: callbackURL,
-				owner: owner,
-				"inviteLink": "/dashboard/@me",
-				"supportServer": supportServer,
-				"introText": config.introText,
-				"footerText": config.footerText
+				clientSecret: data.clientSecret,
+				callbackURL: data.callbackURL,
+				owner: data.owner,
+				inviteLink: "/dashboard/@me",
+				supportServer: data.supportServer,
+				introText: config.introText,
+				footerText: config.footerText,
+				theme: "default",
+				isGlitch: config.isGlitch
 			};
 
 			configNew.featureOne = config.featureOne;
 			configNew.featureTwo = config.featureTwo;
 			configNew.featureThree = config.featureThree;
 			configNew.featureFour = config.featureFour;
-			configNew.navItems = config.navItems
+			configNew.navItems = config.navItems;
 
 			let settings = JSON.stringify(configNew);
 			require("fs").writeFileSync(dashboardConfigPath, settings, "utf8");
@@ -164,7 +173,9 @@ module.exports = {
 	// The "DBM" parameter is the global variable. Store loaded data within it.
 	//---------------------------------------------------------------------
 
-	load: function (DBM, projectLoc) {},
+	load: function (DBM, projectLoc) {
+
+	},
 
 	//---------------------------------------------------------------------
 	// Extension On Save
@@ -181,7 +192,9 @@ module.exports = {
 	// etc...
 	//---------------------------------------------------------------------
 
-	save: function (DBM, data, projectLoc) {},
+	save: function (DBM, data, projectLoc) {
+
+	},
 
 	//---------------------------------------------------------------------
 	// Editor Extension Bot Mod
@@ -200,45 +213,81 @@ module.exports = {
 	//---------------------------------------------------------------------
 
 	mod: function (DBM) {
+		let devMode = false
+		DBM.lastPage = new Map();
+		DBM.actionsExecuted = new Map();
 
-		DBM.require = function (packageName) {
-			const path = require("path");
-			const nodeModulesPath = path.join(__dirname, "dbm_dashboard_extension", "node_modules", packageName);
-			return require(nodeModulesPath)
-		}
+		const {
+			dashboardConfig,
+			ready
+		} = require('../extensions/dbm_dashboard_extension/functions');
+		const config = dashboardConfig()
 
-		const express = DBM.require('express'),
+
+
+		// Mini module handler
+		const path = require("path");
+		moduleRequire = function (packageName) {
+			if (config.isGlitch) {
+				const nodeModulesPath = path.join(__dirname, "../node_modules", packageName);
+				return require(nodeModulesPath)
+			} else {
+				const nodeModulesPath = path.join(__dirname, "dbm_dashboard_extension", "node_modules", packageName);
+				return require(nodeModulesPath)
+			}
+		};
+
+		const express = moduleRequire('express'),
 			{ fs, readdirSync } = require("fs"),
-			path = DBM.require('path'),
-			chalk = DBM.require('chalk'),
-			bodyParser = DBM.require('body-parser'),
-			cookieParser = DBM.require('cookie-parser'),
-			ejs = DBM.require('ejs'),
-			Strategy = DBM.require('passport-discord').Strategy,
-			session = DBM.require('express-session'),
-			passport = DBM.require('passport'),
-			{ dashboardConfig, ready
-			} = require('../extensions/dbm_dashboard_extension/functions');
+			chalk = moduleRequire('chalk'),
+			bodyParser = moduleRequire('body-parser'),
+			cookieParser = moduleRequire('cookie-parser'),
+			ejs = moduleRequire('ejs'),
+			Strategy = moduleRequire('passport-discord').Strategy,
+			session = moduleRequire('express-session'),
+			passport = moduleRequire('passport');
 
 		var app = express();
-		var config = dashboardConfig()
-		app.actions = new Map()
+		app.themes = new Map();
+		app.routes = new Map();
+		app.actions = new Map();
 
 		// Pulls all of the files from actions to be used as mods!
 		readdirSync('./extensions/dbm_dashboard_extension/actions').forEach(dir => {
 			const actions = readdirSync(`./extensions/dbm_dashboard_extension/actions/${dir}/`).filter(file => file.endsWith('.js'));
-		for (let file of actions) {
-			let pull = require(`../extensions/dbm_dashboard_extension/actions/${dir}/${file}`);
-			app.actions.set(pull.name, pull);
-			console.log(chalk.green(`Successfully loaded ${pull.name}`)) 
-		}
-	})
+			for (let file of actions) {
+				let pull = require(`../extensions/dbm_dashboard_extension/actions/${dir}/${file}`);
+				app.actions.set(pull.name, pull);
+				if (devMode) console.log(chalk.green(`Successfully loaded ${pull.name}`))
+			}
+		});
+
+		// Route handler
+		readdirSync('./extensions/dbm_dashboard_extension/actions').forEach(dir => {
+			const actions = readdirSync(`./extensions/dbm_dashboard_extension/actions/${dir}/`).filter(file => file.endsWith('.js'));
+			for (let file of actions) {
+				let pull = require(`../extensions/dbm_dashboard_extension/actions/${dir}/${file}`);
+				if (pull.routeMod) {
+					app.routes.set(pull.name, pull);
+					if (devMode) console.log(chalk.green(`Successfully loaded ${pull.name}`))
+				}
+			}
+		});
+
+		// Themes who??
+		readdirSync('./extensions/dbm_dashboard_extension/public/themes').forEach(dir => {
+			const themes = readdirSync(`./extensions/dbm_dashboard_extension/public/themes/${dir}/`).filter(file => file.endsWith('.css'));
+			for (let file of themes) {
+				app.themes.set(dir, `/themes/${dir}/${file}`);
+				if (devMode) console.log(chalk.green(`Successfully loaded ${file}`));
+			}
+		})
 
 		// We wait for the bot to be ready so these dmb nerds dont break it
 		DBM.Bot.onReady = function () {
 			const client = DBM.Bot.bot;
 			let scopes = ['identify', 'guilds'];
-            //
+			//
 			// Define the express server settings
 			app.set('view engine', 'ejs');
 			app.use(express.static(path.join(__dirname, '/dbm_dashboard_extension/public')));
@@ -281,172 +330,32 @@ module.exports = {
 					failureRedirect: '/dashboard/@me'
 				}),
 				function (req, res) {
-					if (req.user.id == config.owner) return res.redirect('/dashboard/admin')
+					adminCommandExecuted(req, false)
+					dashboardCommandExecuted(req, false)
+					if (req.user.id == config.owner) return res.redirect('/dashboard/admin');
 					res.redirect('/dashboard/@me');
 				}
 			);
 
-			app.get('/', function (req, res) {
-				res.render('homePage', {
-					config: config,
-					client: DBM.Bot.bot
-				});
-			});
-
-			app.get('/dashboard/@me', checkAuth, function (req, res) {
-				res.render('servers', {
-					guilds: req.user.guilds.filter(u => (u.permissions & 2146958591) === 2146958591),
-					user: req.user,
-					config: config,
-					client: DBM.Bot.bot
-				});
-			});
-
-			app.get('/dashboard/@me/servers/:guildID', checkAuth, function (req, res) {
-				let serv = client.guilds.get(req.params.guildID);
-				if (!serv) return res.redirect(`https://discordapp.com/oauth2/authorize?client_id=${DBM.Bot.bot.user.id}&scope=bot&permissions=2146958591&guild_id=${req.params.guildID}`);
-				let dashboardMods = [];
-				app.actions.forEach(data => { if (data.dashboardMod == true) dashboardMods.push(data) });
-				if (!DBM.Bot.bot.log) DBM.Bot.bot.log = 'Command Executed';
-				res.render('dashboardPanel', {
-					client: DBM.Bot.bot,
-					server: serv,
-					dashboardMods: dashboardMods,
-					customHtml: false,
-					log: DBM.Bot.bot.log,
-					config: config,
-					commandExecuted: false,
+			if (app.routes) {
+				app.routes.forEach(data => {
+					if (data.routeUrl) {
+						app.get(data.routeUrl, function (req, res) {
+							res.render('customRoute', {
+								custom: data.html(app, config, DBM, dashboardConfig, DBM.Bot.bot, req, res)
+							});
+							data.run(app, config, DBM, dashboardConfig, DBM.Bot.bot)
+						})
+					} else {
+						data.run(app, config, DBM, dashboardConfig, DBM.Bot.bot)
+					}
 				})
-			});
-
-			app.get('/dashboard/@me/servers/:guildID/:action', checkAuth, function (req, res) {
-				let serv = client.guilds.get(req.params.guildID);
-				if (!serv) return res.redirect(`https://discordapp.com/oauth2/authorize?client_id=${DBM.Bot.bot.user.id}&scope=bot&permissions=2146958591&guild_id=${req.params.guildID}`);
-				var action = req.params.action;
-				let data = app.actions.get(action);
-				let dashboardMods = [];
-				app.actions.forEach(data => { if (data.dashboardMod == true) dashboardMods.push(data) });
-				res.render('dashboardPanel', {
-					dashboardMods: dashboardMods,
-					commandExecuted: req.user.dashboardCommandExecuted,
-					customHtml: data.customHtml,
-					action: data,
-					log: DBM.Bot.bot.log,
-					client: DBM.Bot.bot,
-					config: config,
-					server: serv
-				});
-				dashboardCommandExecuted(req, false);
-			});
-
-			app.get('/dashboard/admin', checkAuthOwner, function (req, res) {
-				let config = dashboardConfig();
-				let dashboardMods = [];
-				app.actions.forEach(data => { if (data.dashboardMod == false) dashboardMods.push(data) });
-				if (!DBM.Bot.bot.log) DBM.Bot.bot.log = 'Command Executed';
-				res.render('adminPanel', {
-					dashboardMods: dashboardMods,
-					commandExecuted: req.user.commandExecuted,
-					customHtml: false,
-					log: DBM.Bot.bot.log,
-					client: DBM.Bot.bot,
-					config: config
-				});
-				if (req.user.commandExecuted) DBM.Bot.bot.log = 'Command Executed';
-			});
-
-			app.post('/api/admin/web', checkAuthOwner, function (req, res) {
-				const dashboardConfigPath = require("path").join(__dirname, "../extensions", "dbm_dashboard_extension", "config.json");
-				let config = dashboardConfig();
-
-				config.featureOne.name = req.body.featureOneName;
-				config.featureOne.description = req.body.featureOneDescription;
-				config.featureTwo.name = req.body.featureTwoName;
-				config.featureTwo.description = req.body.featureTwoDescription;
-				config.featureThree.name = req.body.featureThreeName;
-				config.featureThree.description = req.body.featureThreeDescription;
-				config.featureFour.name = req.body.featureFourName;
-				config.featureFour.description = req.body.featureFourDescription;
-
-				let settings = JSON.stringify(config);
-				require("fs").writeFileSync(dashboardConfigPath, settings, "utf8");
-				res.redirect('/')
-			})
-
-			app.get('/dashboard/admin/:action', checkAuthOwner, function (req, res) {
-				var action = req.params.action;
-				let data = app.actions.get(action);
-				let dashboardMods = [];
-				app.actions.forEach(data => { if (data.dashboardMod == false) dashboardMods.push(data) });
-				res.render('adminPanel', {
-					dashboardMods: dashboardMods,
-					commandExecuted: false,
-					customHtml: true,
-					action: data,
-					log: DBM.Bot.bot.log,
-					client: DBM.Bot.bot,
-					config: config
-				});
-			});
-
-			app.post('/api/execute/:action', checkAuthOwner, function (req, res) {
-				var next = req.query['next'];
-				if (!next) next = false;
-				var action = req.params.action;
-				let data = app.actions.get(action);
-
-				if (data.customHtml) {
-					if (next == 'true') {
-						data.run(DBM.Bot.bot, req, res);
-						if (data.next) {
-							updateCommandExecuted(req, true);
-							res.redirect('/dashboard/admin');
-						};
-					} else {
-						res.redirect(`/dashboard/admin/${data.name}`);
-					};
-				} else {
-					data.run(DBM.Bot.bot, req, res);
-					if (data.next) {
-						updateCommandExecuted(req, true);
-						res.redirect('/dashboard/admin');
-					};
-				};
-			});
-
-			app.post('/dashboard/@me/servers/:guildID/execute/:action', checkAuth, function (req, res) {
-				var next = req.query['next'];
-				if (!next) next = false;
-				var action = req.params.action;
-				let data = app.actions.get(action);
-				let serv = client.guilds.get(req.params.guildID);
-
-				if (data.customHtml) {
-					if (next == 'true') {
-						data.run(DBM.Bot.bot, req, res, serv);
-						if (data.next) {
-							dashboardCommandExecuted(req, true);
-							res.redirect(`http://localhost:3000/dashboard/@me/servers/${serv.id}`);
-							dashboardCommandExecuted(req, false);
-						};
-					} else {
-						res.redirect(`http://localhost:3000/dashboard/@me/servers/${serv.id}/${data.name}`);
-						dashboardCommandExecuted(req, false);
-					};
-				} else {
-					data.run(DBM.Bot.bot, req, res, serv);
-					if (data.next) {
-						dashboardCommandExecuted(req, true);
-						res.redirect(`http://localhost:3000/dashboard/@me/servers/${serv.id}/${data.name}`);
-						dashboardCommandExecuted(req, false);
-					};
-				};
-			});
+			}
 
 			function checkAuth(req, res, next) {
 				if (req.isAuthenticated()) {
 					return next()
-				} 
+				}
 				res.redirect('/login');
 			}
 
@@ -458,14 +367,35 @@ module.exports = {
 				} else res.redirect('/login');
 			}
 
-			function updateCommandExecuted(req, commandExecuted) {
-				req.user.commandExecuted = commandExecuted;
+			function adminCommandExecuted(req, commandExecuted) {
+				let data = {
+					adminCommandExecuted: commandExecuted
+				}
+				DBM.actionsExecuted.set(req.user.id, data);
 			};
 
 			function dashboardCommandExecuted(req, dashboardCommandExecuted) {
-				req.user.dashboardCommandExecuted = dashboardCommandExecuted;
+				let data = {
+					dashboardCommandExecuted: dashboardCommandExecuted
+				}
+				DBM.actionsExecuted.set(req.user.id, data);
 			};
-			
+
+			function theme() {
+				let theme = app.themes.get(config.theme);
+				return theme
+			}
+
+			async function sections() {
+				let actions = app.actions;
+				let section = []
+				await actions.forEach(action => {
+					if (!section.includes(action.section)) {
+						section.push(action.section)
+					}
+				});
+			}
+
 			app.listen(config.port, () => ready());
 		};
 	}

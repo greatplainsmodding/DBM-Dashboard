@@ -90,13 +90,22 @@ module.exports = {
     // Whenever the command is executed this is the code that will be ran. 
     // You can use req to get stuff, note this only works if you add custom html. 
     run: async (app, config, DBM, client, req, res, server) => {
+<<<<<<< HEAD
         let Dashboard = DBM.Dashboard
         client = DBM.Bot.bot
+=======
+        client = DBM.Bot.bot
+        const {dashboardConfig} = require('../../functions.js')
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
         app.get('/', function (req, res) {
             res.render('homePage', {
                 config: config,
                 client: DBM.Bot.bot,
+<<<<<<< HEAD
                 theme: Dashboard.theme()
+=======
+                theme: theme()
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
             });
         });
 
@@ -106,7 +115,11 @@ module.exports = {
                 user: req.user,
                 config: config,
                 client: DBM.Bot.bot,
+<<<<<<< HEAD
                 theme: Dashboard.theme()
+=======
+                theme: theme()
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
             });
         });
 
@@ -114,13 +127,23 @@ module.exports = {
             let serv = client.guilds.get(req.params.guildID);
             if (!serv) return res.redirect(`https://discordapp.com/oauth2/authorize?client_id=${DBM.Bot.bot.user.id}&scope=bot&permissions=2146958591&guild_id=${req.params.guildID}`);
             let dashboardMods = [];
+<<<<<<< HEAD
             Dashboard.actions.forEach(data => {
+=======
+            app.actions.forEach(data => {
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
                 if (data.dashboardMod == true) {
                     dashboardMods.push(data);
                 }
             });
+<<<<<<< HEAD
             let section = []
             Dashboard.actions.forEach(action => {
+=======
+            let actions = app.actions;
+            let section = []
+            actions.forEach(action => {
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
                 if (!section.includes(action.section) && action.routeMod == false && action.dashboardMod == true) {
                     section.push(action.section)
                 }
@@ -133,8 +156,13 @@ module.exports = {
                 customHtml: false,
                 log: DBM.Bot.bot.log,
                 config: config,
+<<<<<<< HEAD
                 commandExecuted: Dashboard.actionsExecuted.get(req.user.id).dashboardCommandExecuted,
                 theme: Dashboard.theme(),
+=======
+                commandExecuted: DBM.actionsExecuted.get(req.user.id).dashboardCommandExecuted,
+                theme: theme(),
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
                 sections: section
             });
             dashboardCommandExecuted(req, false);
@@ -144,6 +172,7 @@ module.exports = {
             let serv = client.guilds.get(req.params.guildID);
             if (!serv) return res.redirect(`https://discordapp.com/oauth2/authorize?client_id=${DBM.Bot.bot.user.id}&scope=bot&permissions=2146958591&guild_id=${req.params.guildID}`);
             var action = req.params.action;
+<<<<<<< HEAD
             let data = Dashboard.actions.get(action);
             let dashboardMods = [];
             Dashboard.actions.forEach(data => {
@@ -151,26 +180,45 @@ module.exports = {
             });
             let section = []
             Dashboard.actions.forEach(action => {
+=======
+            let data = app.actions.get(action);
+            let dashboardMods = [];
+            app.actions.forEach(data => {
+                if (data.dashboardMod == true) dashboardMods.push(data)
+            });
+            let actions = app.actions;
+            let section = []
+            actions.forEach(action => {
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
                 if (!section.includes(action.section) && action.routeMod == false && action.dashboardMod == true) {
                     section.push(action.section)
                 }
             });
             res.render('dashboardPanel', {
                 dashboardMods: dashboardMods,
+<<<<<<< HEAD
                 commandExecuted: Dashboard.actionsExecuted.get(req.user.id).dashboardCommandExecuted,
+=======
+                commandExecuted: DBM.actionsExecuted.get(req.user.id).dashboardCommandExecuted,
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
                 customHtml: data.customHtml,
                 action: data,
                 log: DBM.Bot.bot.log,
                 client: DBM.Bot.bot,
                 config: config,
                 server: serv,
+<<<<<<< HEAD
                 theme: Dashboard.theme(),
+=======
+                theme: theme(),
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
                 sections: section
             });
             dashboardCommandExecuted(req, false);
         });
 
         app.get('/dashboard/admin', checkAuthOwner, function (req, res) {
+<<<<<<< HEAD
             let config = Dashboard.dashboardConfig();
             let dashboardMods = [];
             Dashboard.actions.forEach(data => {
@@ -178,6 +226,15 @@ module.exports = {
             });
             if (!DBM.Bot.bot.log) DBM.Bot.bot.log = 'Command Executed';
             let actions = Dashboard.actions;
+=======
+            let config = dashboardConfig();
+            let dashboardMods = [];
+            app.actions.forEach(data => {
+                if (data.adminMod == true) dashboardMods.push(data)
+            });
+            if (!DBM.Bot.bot.log) DBM.Bot.bot.log = 'Command Executed';
+            let actions = app.actions;
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
             let section = [];
             let extensions = [];
             actions.forEach(action => {
@@ -192,23 +249,36 @@ module.exports = {
             });
             res.render('adminPanel', {
                 dashboardMods: dashboardMods,
+<<<<<<< HEAD
                 commandExecuted: Dashboard.actionsExecuted.get(req.user.id).adminCommandExecuted,
+=======
+                commandExecuted: DBM.actionsExecuted.get(req.user.id).adminCommandExecuted,
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
                 customHtml: false,
                 log: DBM.Bot.bot.log,
                 client: DBM.Bot.bot,
                 config: config,
+<<<<<<< HEAD
                 theme: Dashboard.theme(),
+=======
+                theme: theme(),
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
                 sections: section,
                 extensions: extensions,
                 app: app
             });
             if (req.user.commandExecuted) DBM.Bot.bot.log = 'Command Executed';
+<<<<<<< HEAD
             Dashboard.adminCommandExecuted(req, false);
+=======
+            adminCommandExecuted(req, false);
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
         });
 
 
         app.get('/dashboard/admin/:action', checkAuthOwner, function (req, res) {
             var action = req.params.action;
+<<<<<<< HEAD
             let data = Dashboard.actions.get(action);
             let dashboardMods = [];
             Dashboard.actions.forEach(data => {
@@ -217,11 +287,26 @@ module.exports = {
             let section = [];
             let extensions = [];
             Dashboard.actions.forEach(action => {
+=======
+            let data = app.actions.get(action);
+            let dashboardMods = [];
+            app.actions.forEach(data => {
+                if (data.adminMod == true) dashboardMods.push(data)
+            });
+            let actions = app.actions;
+            let section = [];
+            let extensions = [];
+            actions.forEach(action => {
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
                 if (!section.includes(action.section) && action.routeMod == false && action.adminMod == true) {
                     section.push(action.section)
                 }
             });
+<<<<<<< HEAD
             Dashboard.actions.forEach(action => {
+=======
+            actions.forEach(action => {
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
                 if (action.extensionMod) {
                     extensions.push(action);
                 };
@@ -234,25 +319,41 @@ module.exports = {
                 log: DBM.Bot.bot.log,
                 client: DBM.Bot.bot,
                 config: config,
+<<<<<<< HEAD
                 theme: Dashboard.theme(),
+=======
+                theme: theme(),
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
                 sections: section,
                 extensions: extensions,
                 app: app
             });
+<<<<<<< HEAD
             Dashboard.adminCommandExecuted(req, false);
+=======
+            adminCommandExecuted(req, false);
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
         });
         //app, config, DBM, dashboardConfig, client
         app.post('/api/execute/:action', checkAuthOwner, function (req, res) {
             var next = req.query['next'];
             if (!next) next = false;
             var action = req.params.action;
+<<<<<<< HEAD
             let data = Dashboard.actions.get(action);
+=======
+            let data = app.actions.get(action);
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
             let serv;
             if (data.customHtml) {
                 if (next == 'true') {
                     data.run(app, config, DBM, DBM.Bot.bot, req, res, serv);
                     if (data.next) {
+<<<<<<< HEAD
                         Dashboard.adminCommandExecuted(req, true);
+=======
+                        adminCommandExecuted(req, true);
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
                         res.redirect('/dashboard/admin');
                     };
                 } else {
@@ -261,7 +362,11 @@ module.exports = {
             } else {
                 data.run(app, config, DBM, DBM.Bot.bot, req, res, serv);
                 if (data.next) {
+<<<<<<< HEAD
                     Dashboard.adminCommandExecuted(req, true);
+=======
+                    adminCommandExecuted(req, true);
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
                     res.redirect('/dashboard/admin');
                 };
             };
@@ -271,7 +376,11 @@ module.exports = {
             var next = req.query['next'];
             if (!next) next = false;
             var action = req.params.action;
+<<<<<<< HEAD
             let data = Dashboard.actions.get(action);
+=======
+            let data = app.actions.get(action);
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
             let serv = client.guilds.get(req.params.guildID);
 
             if (data.customHtml) {
@@ -292,6 +401,10 @@ module.exports = {
                 };
             };
         });
+<<<<<<< HEAD
+=======
+  console.log(require("path").join(__dirname, "../../", "config.json"))
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
         app.post('/api/admin/web', checkAuthOwner, function (req, res) {
             const dashboardConfigPath = require("path").join(__dirname, "../extensions", "config.json");
             let config = dashboardConfig();
@@ -311,6 +424,10 @@ module.exports = {
             require("fs").writeFileSync(dashboardConfigPath, settings, "utf8");
             res.redirect('/')
         })
+<<<<<<< HEAD
+=======
+
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
         function checkAuth(req, res, next) {
             if (req.isAuthenticated()) {
                 return next()
@@ -320,12 +437,17 @@ module.exports = {
 
         function checkAuthOwner(req, res, next) {
             if (req.isAuthenticated()) {
+<<<<<<< HEAD
                 if (req.user.id == Dashboard.config.owner) {
+=======
+                if (req.user.id == config.owner) {
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
                     next();
                 } else res.redirect('/dashboard/@me');
             } else res.redirect('/login');
         }
 
+<<<<<<< HEAD
         function dashboardCommandExecuted (req, dashboardCommandExecuted) {
             let data = { dashboardCommandExecuted: dashboardCommandExecuted }
             Dashboard.actionsExecuted.set(req.user.id, data);
@@ -334,6 +456,21 @@ module.exports = {
         adminCommandExecuted = function (req, commandExecuted) {
             let data = { adminCommandExecuted: commandExecuted }
             Dashboard.actionsExecuted.set(req.user.id, data);
+=======
+        function adminCommandExecuted(req, commandExecuted) {
+            let data = { adminCommandExecuted: commandExecuted }
+            DBM.actionsExecuted.set(req.user.id, data);
+        };
+
+        function dashboardCommandExecuted(req, dashboardCommandExecuted) {
+            let data = { dashboardCommandExecuted: dashboardCommandExecuted }
+            DBM.actionsExecuted.set(req.user.id, data);
+        };
+
+        function theme() {
+            let theme = app.themes.get(config.theme);
+            return theme
+>>>>>>> b803b6e15b63e1f95567e7b35bebfceceeb91793
         }
     }
     //----------------------------------------------------------------------------------
