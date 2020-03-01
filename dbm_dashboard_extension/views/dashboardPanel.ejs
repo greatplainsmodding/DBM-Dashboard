@@ -8,9 +8,9 @@
     <title><%= client.user.username %> | Dashboard</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <% if (customHtml) { %>
-    <link href="../../../../css/main.css" rel="stylesheet">
+    <link href="../../../../<%= theme %>" rel="stylesheet">
     <% } else { %>
-    <link href="/css/main.css" rel="stylesheet">
+    <link href="<%= theme %>" rel="stylesheet">
     <% } %>
 </head>
 
@@ -38,27 +38,70 @@
         </svg>
     </div>
     <section class="darkBackground" style="margin: auto;">
-        <div class="row" style="margin: auto;">
-            <div class="col-10" style="margin: auto;">
-                <div class="tab-content">
-                    <table class="table table-striped table-dark">
-                        <thead style="background-color: #2C2F33;">
-                            <tr style="background-color: #23272A;">
-                                <th>Action</th>
-                                <th>Description</th>
-                                <th style="width: 2%;"></th>
-                            </tr>
-                            <% for (i = 0; i < dashboardMods.length; i++) { %>
-                            <tr>
-                                <td><%= dashboardMods[i].name %></td>
-                                <td><%= dashboardMods[i].short_description %></td>
-                                <form action="/dashboard/@me/servers/<%= server.id %>/execute/<%= dashboardMods[i].name %>" method="POST" onsubmit="">
-                                    <td><button type="submit" class="btn btn-danger">Execute</button></td>
-                                </form>
-                            </tr>
-                            <% } %>
-                        </thead>
-                    </table>
+        <div class="row" style="margin-top: 0; max-width: 95%; margin-left: auto; margin-right: auto;">
+            <div class="col-2">
+                <div class="list-group" id="list-tab" role="tablist">
+                    <% 
+                    let addedSections = []
+                    sections.forEach(data => {
+                        if (!addedSections.includes(data)) {
+                            addedSections.push(data);
+                            %>
+                                <a class="list-group-item list-group-item-action <%  if (addedSections.length == 1) {  %> active <% } %>" id="list-<%= data %>"
+                                    data-toggle="list" href="#<%= data %>" role="tab" aria-controls="<%= data %>"
+                                    style="background-color: #2C2F33; color: white;"><%= data %>
+                                </a>
+                            <%
+                        }
+                    })
+                     %>
+                </div>
+            </div>
+
+            <div class="col-10">
+                <div class="tab-content" id="nav-tabContent">
+                    <% 
+                    let addedSectionsContent = []
+                    sections.forEach(data => {
+                        if (!addedSectionsContent.includes(data)) {
+                            addedSectionsContent.push(data);
+                            %>
+                            <div class="tab-pane fade show <%  if (addedSectionsContent.length == 1) {  %> active <% } %>" id="<%= data %>" role="tabpanel" aria-labelledby="list-<%= data %>">
+                                <table class="table table-striped table-dark">
+                                    <thead style="background-color: #2C2F33;">
+                                        <tr style="background-color: #23272A;">
+                                            <th>Action</th>
+                                            <th>Description</th>
+                                            <th>Version</th>
+                                            <th>Author</th>
+                                            <th></th>
+                                        </tr>
+                                        <% 
+                                        let sectionMods = [];
+                                        dashboardMods.forEach(mod => {
+                                            if (data == mod.section) {
+                                                sectionMods.push(mod)
+                                            }
+                                        });
+                                        
+                                        for (i = 0; i < sectionMods.length; i++) { %>
+                                        <tr>
+                                            <td><%= sectionMods[i].name %></td>
+                                            <td><%= sectionMods[i].short_description %></td>
+                                            <td><%= sectionMods[i].version %></td>
+                                            <td><%= sectionMods[i].author %></td>
+                                            <form action="/dashboard/@me/servers/<%= server.id %>/execute/<%= sectionMods[i].name %>" method="POST" onsubmit="">
+                                                <td><button type="submit" class="btn btn-danger">Execute</button></td>
+                                            </form>
+                                        </tr>
+                                        <% } %>
+                                    </thead>
+                                </table>
+                            </div>
+                            <%
+                        }
+                    })
+                     %>
                 </div>
             </div>
         </div>
@@ -83,14 +126,14 @@
 
     <% if (customHtml) { %>
     <div class="modal show" id="customHTMLModal" tabindex="-1" role="dialog" aria-labelledby="customHTML">
-        <div class="modal-dialog" role="document">
+        <div role="document" style="width: <%= action.size().width %>px; margin: auto; padding: 25px;">
             <div class="modal-content darkBackground">
                 <div class="modal-header" style="border-bottom:1px solid #7289DA;">
                     <h3 class="modal-title" style="color: #7289DA" id="customHTML"><%= action.name %></h3>
                 </div>
                 <div class="modal-body" style="border-bottom: none;">
-                    <form action="/api/execute/<%= action.name %>?next=true" method="POST">
-                        <%- action.html() %>
+                    <form action="/dashboard/@me/servers/<%= server.id %>/execute/<%= action.name %>?next=true" method="POST">
+                        <%- action.html(false) %>
                 </div>
                 <div class="modal-footer" style="border-top: none;">
                     <button type="submit" class="btn btn-primary"
