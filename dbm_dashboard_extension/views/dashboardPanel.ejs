@@ -11,6 +11,9 @@
     <link href="../../../../<%= theme %>" rel="stylesheet">
     <% } else { %>
     <link href="<%= theme %>" rel="stylesheet">
+    <link rel="shortcut icon" href="<%= client.user.avatarURL || 'https://discordapp.com/assets/322c936a8c8be1b803cd94861bdfa868.png' %>"/>
+    <meta name="theme-color" content="#7289DA" />
+    <meta name="description" content="<%= config.introText %>">
     <% } %>
 </head>
 
@@ -156,7 +159,10 @@
                 </div>
                 <div class="modal-body" style="border-bottom: none;">
                     <%= log %>
-                </div>
+                    <% 
+                    req.user.commandExecuted = false; 
+                    req.user.log = 'Command Executed';
+                    %>                </div>
                 <div class="modal-footer" style="border-top: none;">
                     <form action="/dashboard/@me/servers/<%= server.id %>/">
                         <button type="submit" class="btn btn-primary">Close</button>

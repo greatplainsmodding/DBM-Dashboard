@@ -217,6 +217,12 @@ module.exports = {
     next: true,
     //----------------------------------------------------------------------------------
 
+    //----------------------------------------------------------------------------------
+    // Ran when the dashboard if first started
+    init: async (DBM) => {
+        
+    },
+    //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
     // Whenever the command is executed this is the code that will be ran. 
@@ -226,12 +232,12 @@ module.exports = {
         if (!server) {
             if (req.body.serverType == 'id') server = client.guilds.find(server => server.id === req.body.server);
             if (!server) server = client.guilds.find(server => server.name === req.body.server);
-            if (!server) return client.log = 'I couldn\'t find this server, please make sure you have the right ID or name.';
+            if (!server) return req.user.log = 'I couldn\'t find this server, please make sure you have the right ID or name.';
         }
 
         if (req.body.channelType == 'id') channel = server.channels.find(channel => channel.id === req.body.channel);
         if (!channel) channel = client.guilds.find(channel => channel.name === req.body.channel);
-        if (!channel) return client.log = 'I couldn\'t find this channel, please make sure you have the right ID or name.';
+        if (!channel) return req.user.log = 'I couldn\'t find this channel, please make sure you have the right ID or name.';
 
         const embed = new Discord.RichEmbed()
             .setColor(req.body.color)
@@ -244,7 +250,7 @@ module.exports = {
             .setFooter(req.body.footer, req.body.footerurl);
         channel.send(embed);
 
-        client.log = `Successfully sent the embed to ${server.name}`;
+        req.user.log = `Successfully sent the embed to ${server.name}`;
     }
     //----------------------------------------------------------------------------------
 }

@@ -2,13 +2,13 @@ module.exports = {
     //----------------------------------------------------------------------------------
     // Used to set the name of the mod / extension. 
     // Note if this is an extension it cant have a space or it will not work.
-    name: "Restart Bot",
+    name: "Main Route",
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
     // Here you can configure what section you want your mod to show up on the dashboard / admin panel. 
     // If this is an extension or route mod you can leave this blank.
-    section: "Dashboard",
+    section: "",
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -18,12 +18,12 @@ module.exports = {
 
     //----------------------------------------------------------------------------------
     // true if this is a mod for the admin panel.
-    adminMod: true,
+    adminMod: false,
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
     // true if this is a mod for routes.
-    routeMod: false,
+    routeMod: true,
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -50,13 +50,13 @@ module.exports = {
     //----------------------------------------------------------------------------------
     // You can set the mods description. 
     // You only need this if its a mod for the admin panel or dashboard.
-    short_description: "Restarts the bot.",
+    short_description: "",
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
     // If this is for a mod and you want to add custom html to the mod set this to true.
     // If you are using this as a custom route you can leave this true or false as it will still pull the custom html.
-    customHtml: false,
+    customHtml: true,
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ module.exports = {
     //----------------------------------------------------------------------------------
     // Ran when the dashboard if first started
     init: async (DBM) => {
-        
+
     },
     //----------------------------------------------------------------------------------
 
@@ -96,9 +96,15 @@ module.exports = {
     // Whenever the command is executed this is the code that will be ran. 
     // You can use req to get stuff, note this only works if you add custom html. 
     run: async (app, config, DBM, client, req, res, server) => {
-        client.destroy().then(client.log = `Restarting bot...`);
-        const child = require('child_process');
-        child.execSync(`node bot.js`);
+        let Dashboard = DBM.Dashboard
+        client = DBM.Bot.bot
+        app.get('/', function (req, res) {
+            res.render('homePage', {
+                config: config,
+                client: DBM.Bot.bot,
+                theme: Dashboard.theme()
+            });
+        });
     }
     //----------------------------------------------------------------------------------
 }

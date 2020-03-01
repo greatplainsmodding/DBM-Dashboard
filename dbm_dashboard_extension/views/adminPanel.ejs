@@ -5,13 +5,16 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><%= client.user.username %> | Dashboard</title>
+    <title><%= client.user.username %> | Admin Panel</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <% if (customHtml) { %>
     <link href="../../<%= theme %>" rel="stylesheet">
     <% } else { %>
     <link href="<%= theme %>" rel="stylesheet">
     <% } %>
+    <link rel="shortcut icon" href="<%= client.user.avatarURL || 'https://discordapp.com/assets/322c936a8c8be1b803cd94861bdfa868.png' %>"/>
+    <meta name="theme-color" content="#7289DA" />
+    <meta name="description" content="<%= config.introText %>">
 </head>
 
 <body>
@@ -252,6 +255,10 @@
                 </div>
                 <div class="modal-body" style="border-bottom: none;">
                     <%= log %>
+                    <% 
+                    req.user.commandExecuted = false; 
+                    req.user.log = 'Command Executed';
+                    %>
                 </div>
                 <div class="modal-footer" style="border-top: none;">
                     <form action="/dashboard">

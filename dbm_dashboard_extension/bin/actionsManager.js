@@ -1,15 +1,8 @@
 module.exports = function (DBM) {
     const Dashboard = DBM.Dashboard
-    const express = Dashboard.requireModule('express'),
-        { fs, readdirSync } = require("fs"),
+    const { fs, readdirSync } = require("fs"),
         chalk = Dashboard.requireModule('chalk'),
-        bodyParser = Dashboard.requireModule('body-parser'),
-        cookieParser = Dashboard.requireModule('cookie-parser'),
-        ejs = Dashboard.requireModule('ejs'),
-        Strategy = Dashboard.requireModule('passport-discord').Strategy,
-        session = Dashboard.requireModule('express-session'),
-        path = Dashboard.requireModule('path'),
-        passport = Dashboard.requireModule('passport');
+        path = Dashboard.requireModule('path');
 
     Dashboard.loadActions = function () {
         readdirSync('./extensions/dbm_dashboard_extension/actions').forEach(dir => {
@@ -17,7 +10,8 @@ module.exports = function (DBM) {
             for (let file of actions) {
                 let pull = require(path.join(__dirname, "../actions", dir, file));
                 Dashboard.actions.set(pull.name, pull);
-                if (Dashboard.devMode) console.log(chalk.green(`Successfully loaded ${pull.name}`))
+                pull.init(DBM);
+                if (Dashboard.devMode) console.log(chalk.green(`Successfully loaded ${pull.name}`));
             }
         });
     }

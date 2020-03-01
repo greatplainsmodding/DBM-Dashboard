@@ -214,39 +214,79 @@ module.exports = {
 
 	mod: function (DBM) {
 		const Dashboard = DBM.Dashboard = {};
+		Dashboard.version = '1.0.1'
 		Dashboard.lastPage = new Map();
 		Dashboard.actionsExecuted = new Map();
 
 		Dashboard.devMode = false;
 		Dashboard.config = require('./dbm_dashboard_extension/config.json');
 
-		// Pulls everything needed from the bin folder
-		require('./dbm_dashboard_extension/bin/functions')(Dashboard);
-		require('./dbm_dashboard_extension/bin/actionsManager')(DBM);
+		Dashboard.init = function () {
+			// Pulls everything needed from the bin folder
+			require('./dbm_dashboard_extension/bin/functions')(Dashboard);
+			require('./dbm_dashboard_extension/bin/actionsManager')(DBM);
 
-		// Require needed modules
-		const express = Dashboard.requireModule('express'),
-		{ fs, readdirSync } = require("fs"),
-		chalk = Dashboard.requireModule('chalk'),
-		bodyParser = Dashboard.requireModule('body-parser'),
-		cookieParser = Dashboard.requireModule('cookie-parser'),
-		ejs = Dashboard.requireModule('ejs'),
-		Strategy = Dashboard.requireModule('passport-discord').Strategy,
-		session = Dashboard.requireModule('express-session'),
-		path = Dashboard.requireModule('path'),
-		passport = Dashboard.requireModule('passport');
+			// Require needed modules
+			const express = Dashboard.requireModule('express')
 
-		Dashboard.app = express();
-		Dashboard.themes = new Map();
-		Dashboard.routes = new Map();
-		Dashboard.actions = new Map();
+			Dashboard.app = express();
+			Dashboard.themes = new Map();
+			Dashboard.routes = new Map();
+			Dashboard.actions = new Map();
 
-		// We wait for the bot to be ready so these dmb nerds dont break it
-		DBM.DashboardOnReady = DBM.Bot.onReady || {};
-		DBM.Bot.onReady = function () {
-			// Start the express server
-			require('./dbm_dashboard_extension/bin/express')(DBM);
-			DBM.DashboardOnReady.apply(this, arguments);
+			// We wait for the bot to be ready so these dmb nerds don't break it
+			DBM.DashboardOnReady = DBM.Bot.onReady || {};
+			DBM.Bot.onReady = function () {
+				// Start the express server
+				require('./dbm_dashboard_extension/bin/dashboard')(DBM);
+				require('./dbm_dashboard_extension/bin/express')(DBM);
+				DBM.DashboardOnReady.apply(this, arguments);
+			};
+		}
+
+		Dashboard.onCommandExecute = function (req, command) {
+			let data = {
+				user: req.user,
+				command: command
+			}
+			return data
 		};
+
+		Dashboard.onLogin = function (req) {
+			return req
+		}
+
+		Dashboard.theme = function () {
+			let theme = Dashboard.themes.get(Dashboard.config.theme);
+			return theme
+		}
+
+		Dashboard.verifyConfig = function () {
+			if (!Dashboard.config.owner) return 'Please enter your user ID in the config.';
+			if (!Dashboard.config.port) return 'Please enter a port in the config.';
+			if (!Dashboard.config.clientSecret) return 'Please enter a client secrete in the config.';
+			if (!Dashboard.config.callbackURL) return 'Please enter a callback url in the config.';
+			if (!Dashboard.config.tokenSecret) return 'Please enter a token secret in the config.';
+
+		}
+
+		// Start the dashboard 
+		if (Dashboard.verifyConfig()) {
+			console.log("-------------------------------------------------------------------------------------------------");
+			console.log(require('chalk').yellow(require('figlet').textSync('DBM Dashboard', { horizontalLayout: 'full' })));
+			console.log("-------------------------------------------------------------------------------------------------");
+			console.log(require('chalk').white('-'), require('chalk').red("Creator:"), require('chalk').white('Great Plains Modding'));
+			console.log(require('chalk').white('-'), require('chalk').red("Version:"), require('chalk').white('1.0.0'));
+			console.log(require('chalk').white('-'), require('chalk').red("Port:"), require('chalk').white(Dashboard.config.port));
+			console.log(require('chalk').white('-'), require('chalk').red("isBotSharded:"), require('chalk').white(Dashboard.config.isBotSharded));
+			console.log(require('chalk').white('-'), require('chalk').red("Client Secret:"), require('chalk').white(Dashboard.config.clientSecret));
+			console.log(require('chalk').white('-'), require('chalk').red("Callback Url:"), require('chalk').white(Dashboard.config.callbackURL));
+			console.log(require('chalk').white('-'), require('chalk').red("DBM Network:"), require('chalk').white('https://discord.gg/3QxkZPK'));
+			console.log("-------------------------------------------------------------------------------------------------");
+			console.log(require('chalk').white('- Error:'), require('chalk').red(Dashboard.verifyConfig()));
+			console.log("-------------------------------------------------------------------------------------------------");
+			return
+		}
+		Dashboard.init();
 	}
 };

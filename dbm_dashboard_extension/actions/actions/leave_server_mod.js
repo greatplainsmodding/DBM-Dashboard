@@ -94,6 +94,12 @@ module.exports = {
     next: true,
     //----------------------------------------------------------------------------------
 
+    //----------------------------------------------------------------------------------
+    // Ran when the dashboard if first started
+    init: async (DBM) => {
+        
+    },
+    //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
     // Whenever the command is executed this is the code that will be ran. 
@@ -104,7 +110,7 @@ module.exports = {
         if (!findServer) findServer = client.guilds.find(server => server.name === req.body.server);
         if (!findServer) return client.log = 'I couldn\'t find this server, please make sure you have the right ID or name.';
         findServer.leave();
-        client.log = `Successfully left ${server.name} (${server.id})`;
+        req.user.log = `Successfully left ${server.name} (${server.id})`;
     }
     //----------------------------------------------------------------------------------
 }

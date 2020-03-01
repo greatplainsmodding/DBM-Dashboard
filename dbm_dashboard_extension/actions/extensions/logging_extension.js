@@ -34,12 +34,7 @@ module.exports = {
 
     //----------------------------------------------------------------------------------
     // Toggle this if you are creating a extension.
-    extensionMod: false,
-    //----------------------------------------------------------------------------------
-
-    //----------------------------------------------------------------------------------
-    // Toggle this if you are creating a addon.
-    addonMod: false,
+    extensionMod: true,
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -61,6 +56,7 @@ module.exports = {
     //----------------------------------------------------------------------------------
     // If this is for a mod and you want to add custom html to the mod set this to true.
     // If you are using this as a custom route you can leave this true or false as it will still pull the custom html.
+    // Also if this is an extension it will only show up in the dashboard if this is set to true. 
     customHtml: false,
     //----------------------------------------------------------------------------------
 
@@ -90,12 +86,30 @@ module.exports = {
     next: true,
     //----------------------------------------------------------------------------------
 
+    //----------------------------------------------------------------------------------
+    // Ran when the dashboard if first started
+    init: async (DBM) => {
+        // On command execute
+        DBM.Dashboard.loggingExtension = DBM.Dashboard.onCommandExecute || {};
+        DBM.Dashboard.onCommandExecute = function (req, command) {
+            console.log(` - ${req.user.username} just ran ${command.name}`)
+            DBM.Dashboard.loggingExtension.apply(this, arguments);
+        }
+
+        // On dashboard login
+        DBM.Dashboard.onLoginExtension = DBM.Dashboard.onLogin || {};
+        DBM.Dashboard.onLogin = function (req) {
+            console.log(` - ${req.user.username} just logged into the dashboard`)
+            DBM.Dashboard.onLoginExtension.apply(this, arguments)
+        }
+    },
+    //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
     // Whenever the command is executed this is the code that will be ran. 
     // You can use req to get stuff, note this only works if you add custom html. 
     run: async (app, config, DBM, client, req, res, server) => {
-        console.log('this is a test')
+
     }
     //----------------------------------------------------------------------------------
 }

@@ -21,29 +21,6 @@ fs = require('fs');
 
 
 module.exports = function (Dashboard) {
-	Dashboard.dashboardCommandExecuted = function(req, dashboardCommandExecuted) {
-		let data = { dashboardCommandExecuted: dashboardCommandExecuted }
-		Dashboard.actionsExecuted.set(req.user.id, data);
-	}
-
-	Dashboard.adminCommandExecuted = function(req, commandExecuted) {
-		let data = { adminCommandExecuted: commandExecuted }
-		Dashboard.actionsExecuted.set(req.user.id, data);
-	}
-
-	Dashboard.checkAuthOwner = function(req) {
-		if (req.isAuthenticated()) {
-			if (req.user.id == Dashboard.config.owner) {
-				next();
-			} else res.redirect('/dashboard/@me');
-		} else res.redirect('/login');
-	}
-
-	Dashboard.theme = function () {
-		let theme = Dashboard.themes.get(Dashboard.config.theme);
-		return theme
-	}
-
 	Dashboard.onReady = function () {
 		const config = require('../config.json')
 		console.log("-------------------------------------------------------------------------------------------------");
@@ -57,7 +34,8 @@ module.exports = function (Dashboard) {
 		console.log(chalk.white('-'), chalk.red("Callback Url:"), chalk.white(config.callbackURL));
 		console.log(chalk.white('-'), chalk.red("DBM Network:"), chalk.white('https://discord.gg/3QxkZPK'));
 		console.log("-------------------------------------------------------------------------------------------------");
-		console.log(chalk.green('Bot Ready'))
+		console.log(chalk.white(chalk.green('- Success:'), `Dashboard started on port ${config.port}. http://localhost:${config.port}`));
+		console.log(chalk.green(chalk.white('-'), 'Bot is ready!'));
 	}
 
 	Dashboard.requireModule = function (packageName) {

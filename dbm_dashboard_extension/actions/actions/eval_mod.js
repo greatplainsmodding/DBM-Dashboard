@@ -90,18 +90,23 @@ module.exports = {
     next: true,
     //----------------------------------------------------------------------------------
 
+    //----------------------------------------------------------------------------------
+    // Ran when the dashboard if first started
+    init: async (DBM) => {
+
+    },
+    //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
     // Whenever the command is executed this is the code that will be ran. 
     // You can use req to get stuff, note this only works if you add custom html. 
     run: async (app, config, DBM, client, req, res, server) => {
-        console.log(DBM)
         try {
             let evaled = eval(req.body.code);
             if (typeof evaled !== "string") evaled = require("util").inspect(evaled);
             client.log = evaled;
         } catch (err) {
-            client.log = err;
+            req.user.log = err;
         };
     }
     //----------------------------------------------------------------------------------

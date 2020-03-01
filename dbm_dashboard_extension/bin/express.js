@@ -14,7 +14,8 @@ module.exports = function (DBM) {
         Strategy = Dashboard.requireModule('passport-discord').Strategy,
         session = Dashboard.requireModule('express-session'),
         path = Dashboard.requireModule('path'),
-        passport = Dashboard.requireModule('passport');
+        passport = Dashboard.requireModule('passport'),
+        url = require('url');
 
     const client = DBM.Bot.bot;
     let scopes = ['identify', 'guilds'];
@@ -29,14 +30,17 @@ module.exports = function (DBM) {
         resave: false,
         saveUninitialized: false
     }));
+
     Dashboard.app.use(bodyParser.urlencoded({
         extended: true
     }));
+
     Dashboard.app.use(passport.initialize());
     Dashboard.app.use(passport.session());
     passport.serializeUser(function (user, done) {
         done(null, user);
     });
+
     passport.deserializeUser(function (obj, done) {
         done(null, obj);
     });
@@ -54,17 +58,29 @@ module.exports = function (DBM) {
 
     Dashboard.app.get('/login', passport.authenticate('discord', {
         scope: scopes
-    }), function (req, res) {});
+    }), function (req, res, next) {
+        if (req.session.backURL) {
+            req.session.backURL = req.session.backURL;
+        } else if (req.headers.referer) {
+            const parsed = url.parse(req.headers.referer);
+            if (parsed.hostname === router.locals.domain) {
+                req.session.backURL = parsed.path;
+            }
+        } else {
+            req.session.backURL = '/'
+        }
+        next();
+    });
 
     Dashboard.app.get('/dashboard/callback',
         passport.authenticate('discord', {
-            failureRedirect: '/failed'
+            failureRedirect: '/'
         }),
         function (req, res) {
-            Dashboard.adminCommandExecuted(req, false)
-            Dashboard.dashboardCommandExecuted(req, false)
-            if (req.user.id == Dashboard.config.owner) return res.redirect('/dashboard/admin');
+            commandExecuted(req, false)
+            commandExecuted(req, false)
             res.redirect('/dashboard/@me');
+            Dashboard.onLogin(req)
         }
     );
 
@@ -72,7 +88,13 @@ module.exports = function (DBM) {
     Dashboard.loadActions();
     Dashboard.loadRoutes();
     Dashboard.loadThemes();
+    Dashboard.loadDashboard();
     Dashboard.loadCustomRoutes();
 
     Dashboard.app.listen(Dashboard.config.port, () => Dashboard.onReady());
+
+    // shit way of doing this, but do I care? no...
+    function commandExecuted(req, commandExecuted) {
+        req.user.commandExecuted = commandExecuted
+    }
 }

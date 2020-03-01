@@ -91,6 +91,12 @@ module.exports = {
     next: true,
     //----------------------------------------------------------------------------------
 
+    //----------------------------------------------------------------------------------
+    // Ran when the dashboard if first started
+    init: async (DBM) => {
+
+    },
+    //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
     // Whenever the command is executed this is the code that will be ran. 
@@ -103,7 +109,7 @@ module.exports = {
         const configPath = path.join(process.cwd(), "data", "settings.json");
         let settings = JSON.stringify(config);
         fs.writeFileSync(configPath, settings);
-        client.log = `Successfully updated ${client.user.username}'s prefix. Note you will need to restart the bot for these changes to take effect.`;
+        req.user.log = `Successfully updated ${client.user.username}'s prefix. Note you will need to restart the bot for these changes to take effect.`;
     }
     //----------------------------------------------------------------------------------
 }

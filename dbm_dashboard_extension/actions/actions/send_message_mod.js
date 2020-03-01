@@ -104,6 +104,12 @@ module.exports = {
     next: true,
     //----------------------------------------------------------------------------------
 
+    //----------------------------------------------------------------------------------
+    // Ran when the dashboard if first started
+    init: async (DBM) => {
+        
+    },
+    //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
     // Whenever the command is executed this is the code that will be ran. 
@@ -120,7 +126,7 @@ module.exports = {
 
 
         channel.send(req.body.message);
-        client.log = `Successfully sent the message to ${server.name}`;
+        req.user.log = `Successfully sent the message to ${server.name}`;
     }
     //----------------------------------------------------------------------------------
 }
