@@ -213,190 +213,40 @@ module.exports = {
 	//---------------------------------------------------------------------
 
 	mod: function (DBM) {
-		let devMode = false
-		DBM.lastPage = new Map();
-		DBM.actionsExecuted = new Map();
+		const Dashboard = DBM.Dashboard = {};
+		Dashboard.lastPage = new Map();
+		Dashboard.actionsExecuted = new Map();
 
-		const {
-			dashboardConfig,
-			ready
-		} = require('../extensions/dbm_dashboard_extension/functions');
-		const config = dashboardConfig()
+		Dashboard.devMode = false;
+		Dashboard.config = require('./dbm_dashboard_extension/config.json');
 
+		// Pulls everything needed from the bin folder
+		require('./dbm_dashboard_extension/bin/functions')(Dashboard);
+		require('./dbm_dashboard_extension/bin/actionsManager')(DBM);
 
+		// Require needed modules
+		const express = Dashboard.requireModule('express'),
+		{ fs, readdirSync } = require("fs"),
+		chalk = Dashboard.requireModule('chalk'),
+		bodyParser = Dashboard.requireModule('body-parser'),
+		cookieParser = Dashboard.requireModule('cookie-parser'),
+		ejs = Dashboard.requireModule('ejs'),
+		Strategy = Dashboard.requireModule('passport-discord').Strategy,
+		session = Dashboard.requireModule('express-session'),
+		path = Dashboard.requireModule('path'),
+		passport = Dashboard.requireModule('passport');
 
-		// Mini module handler
-		const path = require("path");
-		moduleRequire = function (packageName) {
-			if (config.isGlitch) {
-				const nodeModulesPath = path.join(__dirname, "../node_modules", packageName);
-				return require(nodeModulesPath)
-			} else {
-				const nodeModulesPath = path.join(__dirname, "dbm_dashboard_extension", "node_modules", packageName);
-				return require(nodeModulesPath)
-			}
-		};
-
-		const express = moduleRequire('express'),
-			{ fs, readdirSync } = require("fs"),
-			chalk = moduleRequire('chalk'),
-			bodyParser = moduleRequire('body-parser'),
-			cookieParser = moduleRequire('cookie-parser'),
-			ejs = moduleRequire('ejs'),
-			Strategy = moduleRequire('passport-discord').Strategy,
-			session = moduleRequire('express-session'),
-			passport = moduleRequire('passport');
-
-		var app = express();
-		app.themes = new Map();
-		app.routes = new Map();
-		app.actions = new Map();
-
-		// Pulls all of the files from actions to be used as mods!
-		readdirSync('./extensions/dbm_dashboard_extension/actions').forEach(dir => {
-			const actions = readdirSync(`./extensions/dbm_dashboard_extension/actions/${dir}/`).filter(file => file.endsWith('.js'));
-			for (let file of actions) {
-				let pull = require(`../extensions/dbm_dashboard_extension/actions/${dir}/${file}`);
-				app.actions.set(pull.name, pull);
-				if (devMode) console.log(chalk.green(`Successfully loaded ${pull.name}`))
-			}
-		});
-
-		// Route handler
-		readdirSync('./extensions/dbm_dashboard_extension/actions').forEach(dir => {
-			const actions = readdirSync(`./extensions/dbm_dashboard_extension/actions/${dir}/`).filter(file => file.endsWith('.js'));
-			for (let file of actions) {
-				let pull = require(`../extensions/dbm_dashboard_extension/actions/${dir}/${file}`);
-				if (pull.routeMod) {
-					app.routes.set(pull.name, pull);
-					if (devMode) console.log(chalk.green(`Successfully loaded ${pull.name}`))
-				}
-			}
-		});
-
-		// Themes who??
-		readdirSync('./extensions/dbm_dashboard_extension/public/themes').forEach(dir => {
-			const themes = readdirSync(`./extensions/dbm_dashboard_extension/public/themes/${dir}/`).filter(file => file.endsWith('.css'));
-			for (let file of themes) {
-				app.themes.set(dir, `/themes/${dir}/${file}`);
-				if (devMode) console.log(chalk.green(`Successfully loaded ${file}`));
-			}
-		})
+		Dashboard.app = express();
+		Dashboard.themes = new Map();
+		Dashboard.routes = new Map();
+		Dashboard.actions = new Map();
 
 		// We wait for the bot to be ready so these dmb nerds dont break it
+		DBM.DashboardOnReady = DBM.Bot.onReady || {};
 		DBM.Bot.onReady = function () {
-			const client = DBM.Bot.bot;
-			let scopes = ['identify', 'guilds'];
-			//
-			// Define the express server settings
-			app.set('view engine', 'ejs');
-			app.use(express.static(path.join(__dirname, '/dbm_dashboard_extension/public')));
-			app.set('views', path.join(__dirname, '/dbm_dashboard_extension/views'));
-			app.use(cookieParser(config.tokenSecret));
-			app.use(session({
-				secret: config.tokenSecret,
-				resave: false,
-				saveUninitialized: false
-			}));
-			app.use(bodyParser.urlencoded({
-				extended: true
-			}));
-			app.use(passport.initialize());
-			app.use(passport.session());
-			passport.serializeUser(function (user, done) {
-				done(null, user);
-			});
-			passport.deserializeUser(function (obj, done) {
-				done(null, obj);
-			});
-
-			passport.use(new Strategy({
-				clientID: DBM.Bot.bot.user.id,
-				clientSecret: config.clientSecret,
-				callbackURL: config.callbackURL,
-				scope: scopes
-			}, (accessToken, refreshToken, profile, done) => {
-				process.nextTick(() => {
-					return done(null, profile);
-				});
-			}));
-
-			app.get('/login', passport.authenticate('discord', {
-				scope: scopes
-			}), function (req, res) {});
-
-			app.get('/dashboard/callback',
-				passport.authenticate('discord', {
-					failureRedirect: '/dashboard/@me'
-				}),
-				function (req, res) {
-					adminCommandExecuted(req, false)
-					dashboardCommandExecuted(req, false)
-					if (req.user.id == config.owner) return res.redirect('/dashboard/admin');
-					res.redirect('/dashboard/@me');
-				}
-			);
-
-			if (app.routes) {
-				app.routes.forEach(data => {
-					if (data.routeUrl) {
-						app.get(data.routeUrl, function (req, res) {
-							res.render('customRoute', {
-								custom: data.html(app, config, DBM, dashboardConfig, DBM.Bot.bot, req, res)
-							});
-							data.run(app, config, DBM, dashboardConfig, DBM.Bot.bot)
-						})
-					} else {
-						data.run(app, config, DBM, dashboardConfig, DBM.Bot.bot)
-					}
-				})
-			}
-
-			function checkAuth(req, res, next) {
-				if (req.isAuthenticated()) {
-					return next()
-				}
-				res.redirect('/login');
-			}
-
-			function checkAuthOwner(req, res, next) {
-				if (req.isAuthenticated()) {
-					if (req.user.id == config.owner) {
-						next();
-					} else res.redirect('/dashboard/@me');
-				} else res.redirect('/login');
-			}
-
-			function adminCommandExecuted(req, commandExecuted) {
-				let data = {
-					adminCommandExecuted: commandExecuted
-				}
-				DBM.actionsExecuted.set(req.user.id, data);
-			};
-
-			function dashboardCommandExecuted(req, dashboardCommandExecuted) {
-				let data = {
-					dashboardCommandExecuted: dashboardCommandExecuted
-				}
-				DBM.actionsExecuted.set(req.user.id, data);
-			};
-
-			function theme() {
-				let theme = app.themes.get(config.theme);
-				return theme
-			}
-
-			async function sections() {
-				let actions = app.actions;
-				let section = []
-				await actions.forEach(action => {
-					if (!section.includes(action.section)) {
-						section.push(action.section)
-					}
-				});
-			}
-
-			app.listen(config.port, () => ready());
+			// Start the express server
+			require('./dbm_dashboard_extension/bin/express')(DBM);
+			DBM.DashboardOnReady.apply(this, arguments);
 		};
 	}
 };
