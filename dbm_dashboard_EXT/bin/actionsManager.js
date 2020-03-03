@@ -5,8 +5,8 @@ module.exports = function (DBM) {
         path = Dashboard.requireModule('path');
 
     Dashboard.loadActions = function () {
-        readdirSync('./extensions/dbm_dashboard_extension/actions').forEach(dir => {
-            const actions = readdirSync(`./extensions/dbm_dashboard_extension/actions/${dir}/`).filter(file => file.endsWith('.js'));
+        readdirSync('./extensions/dbm_dashboard_EXT/actions').forEach(dir => {
+            const actions = readdirSync(`./extensions/dbm_dashboard_EXT/actions/${dir}/`).filter(file => file.endsWith('.js'));
             for (let file of actions) {
                 let pull = require(path.join(__dirname, "../actions", dir, file));
                 Dashboard.actions.set(pull.name, pull);
@@ -18,8 +18,8 @@ module.exports = function (DBM) {
 
     // Route handler
     Dashboard.loadRoutes = function () {
-        readdirSync('./extensions/dbm_dashboard_extension/actions').forEach(dir => {
-            const actions = readdirSync(`./extensions/dbm_dashboard_extension/actions/${dir}/`).filter(file => file.endsWith('.js'));
+        readdirSync('./extensions/dbm_dashboard_EXT/actions').forEach(dir => {
+            const actions = readdirSync(`./extensions/dbm_dashboard_EXT/actions/${dir}/`).filter(file => file.endsWith('.js'));
             for (let file of actions) {
                 let pull = require(path.join(__dirname, "../actions", dir, file));
                 if (pull.routeMod) {
@@ -32,8 +32,8 @@ module.exports = function (DBM) {
 
     // Themes who??
     Dashboard.loadThemes = function () {
-        readdirSync('./extensions/dbm_dashboard_extension/public/themes').forEach(dir => {
-            const themes = readdirSync(`./extensions/dbm_dashboard_extension/public/themes/${dir}/`).filter(file => file.endsWith('.css'));
+        readdirSync('./extensions/dbm_dashboard_EXT/public/themes').forEach(dir => {
+            const themes = readdirSync(`./extensions/dbm_dashboard_EXT/public/themes/${dir}/`).filter(file => file.endsWith('.css'));
             for (let file of themes) {
                 Dashboard.themes.set(dir, `/themes/${dir}/${file}`);
                 if (Dashboard.devMode) console.log(chalk.green(`Successfully loaded ${file}`));

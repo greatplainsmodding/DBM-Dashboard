@@ -2,13 +2,13 @@ module.exports = {
     //----------------------------------------------------------------------------------
     // Used to set the name of the mod / extension. 
     // Note if this is an extension it cant have a space or it will not work.
-    name: "Send Message",
+    name: "Dashboard Logs",
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
     // Here you can configure what section you want your mod to show up on the dashboard / admin panel. 
     // If this is an extension or route mod you can leave this blank.
-    section: "Dashboard",
+    section: "",
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ module.exports = {
 
     //----------------------------------------------------------------------------------
     // true if this is a mod for the admin panel.
-    adminMod: true,
+    adminMod: false,
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ module.exports = {
 
     //----------------------------------------------------------------------------------
     // Toggle this if you are creating a extension.
-    extensionMod: false,
+    extensionMod: true,
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -50,13 +50,14 @@ module.exports = {
     //----------------------------------------------------------------------------------
     // You can set the mods description. 
     // You only need this if its a mod for the admin panel or dashboard.
-    short_description: "Sends a message to the specified server and channel.",
+    short_description: "",
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
     // If this is for a mod and you want to add custom html to the mod set this to true.
     // If you are using this as a custom route you can leave this true or false as it will still pull the custom html.
-    customHtml: true,
+    // Also if this is an extension it will only show up in the dashboard if this is set to true. 
+    customHtml: false,
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -75,26 +76,7 @@ module.exports = {
     // Also if you are using this mod for a custom route you can place your html code here and this is what will show up on the page. 
     // Note this is not inside of form tags if this is a custom route.
     html: function () {
-        return `
-        <div class="form-group">
-            <p>Find Server By:</p>
-            <select class="form-control" name="serverType">
-                <option selected value="id">Guild ID</option>
-                <option value="name">Guild Name</option>
-            </select><br>
-            <p>Guild ID / Name:</p>
-            <input class="form-control" name="server" rows="4" required><br><br>
-            <p>Find Channel By:</p>
-            <select class="form-control" name="channelType">
-                <option selected value="id">Channel ID</option>
-                <option value="name">Channel Name</option>
-            </select><br>
-            <p>Channel ID / Name:</p>
-            <input class="form-control" name="channel" rows="4" required><br><br>
-            <p>Message:</p>
-            <textarea class="form-control" name="message" rows="4" required style="width=100%"></textarea>
-        </div>
-        `
+        return ``
     },
     //----------------------------------------------------------------------------------
 
@@ -107,7 +89,28 @@ module.exports = {
     //----------------------------------------------------------------------------------
     // Ran when the dashboard if first started
     init: async (DBM) => {
+        // Create your own functions so other mods can edit them. Note if you overwrite a mod the filename will need to start with zzz
         
+        /*
+        DBM.Dashboard.loggingExtension = function () {
+            DBM.Dashboard.loggingExtension = DBM.Dashboard.onCommandExecute || {};
+            DBM.Dashboard.onCommandExecute = function (req, command) {
+                console.log(`- ${req.user.username} just ran ${command.name}.`);
+                DBM.Dashboard.loggingExtension.apply(this, arguments);
+            };
+    
+            // On dashboard login
+            DBM.Dashboard.onLoginExtension = DBM.Dashboard.onLogin || {};
+            DBM.Dashboard.onLogin = function (req) {
+                console.log(`- ${req.user.username} just logged into the dashboard.`);
+                DBM.Dashboard.onLoginExtension.apply(this, arguments);
+            };
+        };
+        
+
+        // Now we need to run  our function
+        DBM.Dashboard.loggingExtension();
+        */
     },
     //----------------------------------------------------------------------------------
 
@@ -115,18 +118,7 @@ module.exports = {
     // Whenever the command is executed this is the code that will be ran. 
     // You can use req to get stuff, note this only works if you add custom html. 
     run: async (app, config, DBM, client, req, res, server) => {
-        let channel;
-        if (req.body.serverType == 'id') server = client.guilds.find(server => server.id === req.body.server);
-        if (!server) server = client.guilds.find(server => server.name === req.body.server);
-        if (!server) return client.log = 'I couldn\'t find this server, please make sure you have the right ID or name.';
 
-        if (req.body.channelType == 'id') channel = server.channels.find(channel => channel.id === req.body.channel);
-        if (!channel) channel = client.guilds.find(channel => channel.name === req.body.channel);
-        if (!channel) return client.log = 'I couldn\'t find this channel, please make sure you have the right ID or name.';
-
-
-        channel.send(req.body.message);
-        req.user.log = `Successfully sent the message to ${server.name}`;
     }
     //----------------------------------------------------------------------------------
 }

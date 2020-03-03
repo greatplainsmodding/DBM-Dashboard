@@ -3,11 +3,6 @@ module.exports = function (DBM) {
 
     // Require needed modules
     const express = Dashboard.requireModule('express'),
-        {
-            fs,
-            readdirSync
-        } = require("fs"),
-        chalk = Dashboard.requireModule('chalk'),
         bodyParser = Dashboard.requireModule('body-parser'),
         cookieParser = Dashboard.requireModule('cookie-parser'),
         ejs = Dashboard.requireModule('ejs'),
@@ -77,8 +72,8 @@ module.exports = function (DBM) {
             failureRedirect: '/'
         }),
         function (req, res) {
-            commandExecuted(req, false)
-            commandExecuted(req, false)
+            Dashboard.commandExecuted(req, false)
+            Dashboard.commandExecuted(req, false)
             res.redirect('/dashboard/@me');
             Dashboard.onLogin(req)
         }
@@ -92,9 +87,4 @@ module.exports = function (DBM) {
     Dashboard.loadCustomRoutes();
 
     Dashboard.app.listen(Dashboard.config.port, () => Dashboard.onReady());
-
-    // shit way of doing this, but do I care? no...
-    function commandExecuted(req, commandExecuted) {
-        req.user.commandExecuted = commandExecuted
-    }
 }

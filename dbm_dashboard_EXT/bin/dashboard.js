@@ -2,8 +2,7 @@ module.exports = function (DBM) {
     const Dashboard = DBM.Dashboard;
     const client = DBM.Bot.bot;
     Dashboard.loadDashboard = function () {
-
-        Dashboard.app.get('/dashboard/@me', checkAuth, function (req, res) {
+        Dashboard.app.get('/dashboard/@me', Dashboard.checkAuth, function (req, res) {
             res.render('servers', {
                 guilds: req.user.guilds.filter(u => (u.permissions & 2146958591) === 2146958591),
                 user: req.user,
@@ -14,7 +13,7 @@ module.exports = function (DBM) {
             });
         });
 
-        Dashboard.app.get('/dashboard/@me/servers/:guildID', checkAuth, function (req, res) {
+        Dashboard.app.get('/dashboard/@me/servers/:guildID', Dashboard.checkAuth, function (req, res) {
             let serv = client.guilds.get(req.params.guildID);
             if (!serv) return res.redirect(`https://discordapp.com/oauth2/authorize?client_id=${DBM.Bot.bot.user.id}&scope=bot&permissions=2146958591&guild_id=${req.params.guildID}`);
             let dashboardMods = [];
@@ -42,10 +41,10 @@ module.exports = function (DBM) {
                 sections: section,
                 req: req
             });
-            commandExecuted(req, false);
+            Dashboard.commandExecuted(req, false);
         });
 
-        Dashboard.app.get('/dashboard/@me/servers/:guildID/:action', checkAuth, function (req, res) {
+        Dashboard.app.get('/dashboard/@me/servers/:guildID/:action', Dashboard.checkAuth, function (req, res) {
             let serv = client.guilds.get(req.params.guildID);
             if (!serv) return res.redirect(`https://discordapp.com/oauth2/authorize?client_id=${DBM.Bot.bot.user.id}&scope=bot&permissions=2146958591&guild_id=${req.params.guildID}`);
             var action = req.params.action;
@@ -73,10 +72,10 @@ module.exports = function (DBM) {
                 sections: section,
                 req: req
             });
-            commandExecuted(req, false);
+            Dashboard.commandExecuted(req, false);
         });
 
-        Dashboard.app.get('/dashboard/admin', checkAuthOwner, function (req, res) {
+        Dashboard.app.get('/dashboard/admin', Dashboard.checkAuthOwner, function (req, res) {
             let config = Dashboard.dashboardConfig();
             let dashboardMods = [];
             Dashboard.actions.forEach(data => {
@@ -111,11 +110,11 @@ module.exports = function (DBM) {
                 app: Dashboard.app,
                 req: req
             });
-            commandExecuted(req, false);
+            Dashboard.commandExecuted(req, false);
         });
 
 
-        Dashboard.app.get('/dashboard/admin/:action', checkAuthOwner, function (req, res) {
+        Dashboard.app.get('/dashboard/admin/:action', Dashboard.checkAuthOwner, function (req, res) {
             var action = req.params.action;
             let data = Dashboard.actions.get(action);
             let dashboardMods = [];
@@ -152,10 +151,10 @@ module.exports = function (DBM) {
                 app: Dashboard.app,
                 req: req
             });
-            commandExecuted(req, false);
+            Dashboard.commandExecuted(req, false);
         });
 
-        Dashboard.app.post('/api/execute/:action', checkAuthOwner, function (req, res) {
+        Dashboard.app.post('/api/execute/:action', Dashboard.checkAuthOwner, function (req, res) {
             var next = req.query['next'];
             if (!next) next = false;
             var action = req.params.action;
@@ -166,7 +165,7 @@ module.exports = function (DBM) {
                 if (next == 'true') {
                     data.run(Dashboard.app, Dashboard.config, DBM, DBM.Bot.bot, req, res, serv);
                     if (data.next) {
-                        commandExecuted(req, true);
+                        Dashboard.commandExecuted(req, true);
                         res.redirect('/dashboard/admin');
                     };
                 } else {
@@ -175,13 +174,13 @@ module.exports = function (DBM) {
             } else {
                 data.run(Dashboard.app, Dashboard.config, DBM, DBM.Bot.bot, req, res, serv);
                 if (data.next) {
-                    commandExecuted(req, true);
+                    Dashboard.commandExecuted(req, true);
                     res.redirect('/dashboard/admin');
                 };
             };
         });
     
-        Dashboard.app.post('/dashboard/@me/servers/:guildID/execute/:action', checkAuth, function (req, res) {
+        Dashboard.app.post('/dashboard/@me/servers/:guildID/execute/:action', Dashboard.checkAuth, function (req, res) {
             var next = req.query['next'];
             if (!next) next = false;
             var action = req.params.action;
@@ -192,7 +191,7 @@ module.exports = function (DBM) {
                 if (next == 'true') {
                     data.run(Dashboard.app, Dashboard.config, DBM, DBM.Bot.bot, req, res, serv);
                     if (data.next) {
-                        commandExecuted(req, true);
+                        Dashboard.commandExecuted(req, true);
                         res.redirect(`/dashboard/@me/servers/${serv.id}`);
                     };
                 } else {
@@ -201,15 +200,15 @@ module.exports = function (DBM) {
             } else {
                 data.run(Dashboard.app, Dashboard.config, DBM, DBM.Bot.bot, req, res, serv);
                 if (data.next) {
-                    commandExecuted(req, true);
+                    Dashboard.commandExecuted(req, true);
                     res.redirect(`/dashboard/@me/servers/${serv.id}/${data.name}`);
                 };
             };
         });
 
-        Dashboard.app.post('/api/admin/web', checkAuthOwner, function (req, res) {
+        Dashboard.app.post('/api/admin/web', Dashboard.checkAuthOwner, function (req, res) {
             const dashboardConfigPath = require("path").join(__dirname, "../config.json");
-            let config = require('../config.json');
+            let config = require('../config.json.js.js');
     
             config.featureOne.name = req.body.featureOneName;
             config.featureOne.description = req.body.featureOneDescription;
@@ -226,25 +225,5 @@ module.exports = function (DBM) {
             require("fs").writeFileSync(dashboardConfigPath, settings, "utf8");
             res.redirect('/')
         })
-    
-        function checkAuth(req, res, next) {
-            if (req.isAuthenticated()) {
-                return next()
-            }
-            res.redirect('/login');
-        }
-
-        function checkAuthOwner(req, res, next) {
-            if (req.isAuthenticated()) {
-                if (req.user.id == Dashboard.config.owner) {
-                    next();
-                } else res.redirect('/dashboard/@me');
-            } else res.redirect('/login');
-        }
-    
-        // shit way of doing this, but do I care? no...
-        function commandExecuted (req, commandExecuted) {
-            req.user.commandExecuted = commandExecuted
-        }
     }
 }

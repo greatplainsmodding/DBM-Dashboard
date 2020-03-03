@@ -2,7 +2,7 @@ module.exports = {
     //----------------------------------------------------------------------------------
     // Used to set the name of the mod / extension. 
     // Note if this is an extension it cant have a space or it will not work.
-    name: "Global Prefix",
+    name: "Send Message",
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ module.exports = {
     //----------------------------------------------------------------------------------
     // You can set the mods description. 
     // You only need this if its a mod for the admin panel or dashboard.
-    short_description: "",
+    short_description: "Sends a message to the specified server and channel.",
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -75,11 +75,24 @@ module.exports = {
     // Also if you are using this mod for a custom route you can place your html code here and this is what will show up on the page. 
     // Note this is not inside of form tags if this is a custom route.
     html: function () {
-        const config = require('../../../../data/settings.json');
         return `
         <div class="form-group">
-            <p>The global prefix is currently set to <b><code>${config.tag}</code></b></p>
-            <input class="form-control" name="prefix" rows="4" value="${config.tag}" required>
+            <p>Find Server By:</p>
+            <select class="form-control" name="serverType">
+                <option selected value="id">Guild ID</option>
+                <option value="name">Guild Name</option>
+            </select><br>
+            <p>Guild ID / Name:</p>
+            <input class="form-control" name="server" rows="4" required><br><br>
+            <p>Find Channel By:</p>
+            <select class="form-control" name="channelType">
+                <option selected value="id">Channel ID</option>
+                <option value="name">Channel Name</option>
+            </select><br>
+            <p>Channel ID / Name:</p>
+            <input class="form-control" name="channel" rows="4" required><br><br>
+            <p>Message:</p>
+            <textarea class="form-control" name="message" rows="4" required style="width=100%"></textarea>
         </div>
         `
     },
@@ -94,7 +107,7 @@ module.exports = {
     //----------------------------------------------------------------------------------
     // Ran when the dashboard if first started
     init: async (DBM) => {
-
+        
     },
     //----------------------------------------------------------------------------------
 
@@ -102,14 +115,22 @@ module.exports = {
     // Whenever the command is executed this is the code that will be ran. 
     // You can use req to get stuff, note this only works if you add custom html. 
     run: async (app, config, DBM, client, req, res, server) => {
-        const fs = require('fs');
-        const path = require('path');
-        config.tag = req.body.prefix;
-
-        const configPath = path.join(process.cwd(), "data", "settings.json");
-        let settings = JSON.stringify(config);
-        fs.writeFileSync(configPath, settings);
-        req.user.log = `Successfully updated ${client.user.username}'s prefix. Note you will need to restart the bot for these changes to take effect.`;
+        try {
+            let channel;
+            if (req.body.serverType == 'id') server = client.guilds.find(server => server.id === req.body.server);
+            if (!server) server = client.guilds.find(server => server.name === req.body.server);
+            if (!server) return client.log = 'I couldn\'t find this server, please make sure you have the right ID or name.';
+    
+            if (req.body.channelType == 'id') channel = server.channels.find(channel => channel.id === req.body.channel);
+            if (!channel) channel = client.guilds.find(channel => channel.name === req.body.channel);
+            if (!channel) return client.log = 'I couldn\'t find this channel, please make sure you have the right ID or name.';
+    
+    
+            channel.send(req.body.message);
+            req.user.log = `Successfully sent the message to ${server.name}`;   
+        } catch (error) {
+            req.user.log = 'We ran into an error.';
+        }
     }
     //----------------------------------------------------------------------------------
 }

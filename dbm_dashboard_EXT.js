@@ -54,11 +54,11 @@ module.exports = {
 	//---------------------------------------------------------------------
 
 	defaultFields: {
-		port: require('../extensions/dbm_dashboard_extension/config.json').port,
-		clientSecret: require('../extensions/dbm_dashboard_extension/config.json').clientSecret,
-		callbackURL: require('../extensions/dbm_dashboard_extension/config.json').callbackURL,
-		owner: require('../extensions/dbm_dashboard_extension/config.json').owner,
-		supportServer: require('../extensions/dbm_dashboard_extension/config.json').supportServer
+		port: require('../extensions/dbm_dashboard_EXT/config.json').port,
+		clientSecret: require('../extensions/dbm_dashboard_EXT/config.json').clientSecret,
+		callbackURL: require('../extensions/dbm_dashboard_EXT/config.json').callbackURL,
+		owner: require('../extensions/dbm_dashboard_EXT/config.json').owner,
+		supportServer: require('../extensions/dbm_dashboard_EXT/config.json').supportServer
 	},
 
 	//---------------------------------------------------------------------
@@ -70,7 +70,7 @@ module.exports = {
 	size: function () {
 		return {
 			width: 700,
-			height: 540
+			height: 620
 		};
 	},
 
@@ -86,12 +86,18 @@ module.exports = {
 		<div style="overflow-y: scroll; overflow-x: hidden; width: 100%">
 			<div style="padding-left: 15px; padding-top: 3px; width: 100%">
 				<div>
-					<p>
-						<u><b>Extension Info:</b></u><br>
-						<b>Version:</b> 1.0.0<br>
-						<b>Created by:</b> Great Plains Modding<br><br>
-					</p>
-				</div>
+					<u><b>Extension Info:</b></u>
+						<li><b>Version:</b> 1.0.3</li>
+						<li><b>Created by:</b> Great Plains Modding</li><br>
+					<u><b>Changelog:</b></u>
+						<li>Added a database function</li>
+						<li>Moved must stuff to functions so they can be overwritten inside of mods and extensions.
+						<li>Added on init to mods, extensions, and routes.</li>
+						<li>Re-wrote most of the backend</li>
+						<li>Changed the way logs are handled</li>
+						<li>Redid the startup log</li>
+						<li>Minor improvements to the dashboard system
+				</div><br>
 				<div style="float: left; width: 99%;">
 					Port:<br>
 					<input type="text" value="${data.port}" class="round" style="padding-bottom: 3px;" id="port"><br>
@@ -134,8 +140,8 @@ module.exports = {
 		data.supportServer = String(document.getElementById("supportServer").value);
 
 		try {
-			const config = require('./dbm_dashboard_extension/config.json');
-			const dashboardConfigPath = require("path").join(__dirname, "../extensions", "dbm_dashboard_extension", "config.json");
+			const config = require('./dbm_dashboard_EXT/config.json');
+			const dashboardConfigPath = require("path").join(__dirname, "../extensions", "dbm_dashboard_EXT", "config.json");
 			const configNew = {
 				port: data.port,
 				isBotSharded: false,
@@ -219,15 +225,15 @@ module.exports = {
 		Dashboard.actionsExecuted = new Map();
 
 		Dashboard.devMode = false;
-		Dashboard.config = require('./dbm_dashboard_extension/config.json');
+		Dashboard.config = require('./dbm_dashboard_EXT/config.json');
 
 		Dashboard.init = function () {
 			// Pulls everything needed from the bin folder
-			require('./dbm_dashboard_extension/bin/functions')(Dashboard);
-			require('./dbm_dashboard_extension/bin/actionsManager')(DBM);
+			require('./dbm_dashboard_EXT/bin/functions')(Dashboard);
+			require('./dbm_dashboard_EXT/bin/actionsManager')(DBM);
 
 			// Require needed modules
-			const express = Dashboard.requireModule('express')
+			const express = Dashboard.requireModule('express');
 
 			Dashboard.app = express();
 			Dashboard.themes = new Map();
@@ -238,10 +244,12 @@ module.exports = {
 			DBM.DashboardOnReady = DBM.Bot.onReady || {};
 			DBM.Bot.onReady = function () {
 				// Start the express server
-				require('./dbm_dashboard_extension/bin/dashboard')(DBM);
-				require('./dbm_dashboard_extension/bin/express')(DBM);
+				require('./dbm_dashboard_EXT/bin/dashboard')(DBM);
+				require('./dbm_dashboard_EXT/bin/express')(DBM);
+
 				DBM.DashboardOnReady.apply(this, arguments);
 			};
+
 		}
 
 		Dashboard.onCommandExecute = function (req, command) {
@@ -261,14 +269,88 @@ module.exports = {
 			return theme
 		}
 
+		Dashboard.checkAuthOwner = function (req, res, next) {
+			if (req.isAuthenticated()) {
+				if (req.user.id == Dashboard.config.owner) {
+					next();
+				} else res.redirect('/dashboard/@me');
+			} else res.redirect('/login');
+		}
+
+		Dashboard.checkAuth = function (req, res, next) {
+			if (req.isAuthenticated()) {
+				return next()
+			}
+			res.redirect('/login');
+		}
+
+		Dashboard.commandExecuted = function (req, commandExecuted) {
+			req.user.commandExecuted = commandExecuted
+		}
+
 		Dashboard.verifyConfig = function () {
 			if (!Dashboard.config.owner) return 'Please enter your user ID in the config.';
 			if (!Dashboard.config.port) return 'Please enter a port in the config.';
 			if (!Dashboard.config.clientSecret) return 'Please enter a client secrete in the config.';
 			if (!Dashboard.config.callbackURL) return 'Please enter a callback url in the config.';
 			if (!Dashboard.config.tokenSecret) return 'Please enter a token secret in the config.';
-
 		}
+
+		Dashboard.insertData = function (dataName, data) {
+			try {
+				const path = require("path").join(__dirname, "dbm_dashboard_EXT", "data", "globalVars.json")
+				let database = require('./dbm_dashboard_EXT/data/globalVars.json');
+				database[dataName] = data;
+				database = JSON.stringify(database);
+				require("fs").writeFileSync(path, database, "utf8");
+				return database;
+			} catch (error) {
+				console.log(error);
+			};
+		};
+
+		Dashboard.retrieveData = function (dataName) {
+			try {
+				let database = require('./dbm_dashboard_EXT/data/globalVars.json');
+				return database[dataName];
+			} catch (error) {
+				console.error(error);
+			};
+		};
+
+		Dashboard.insertDataCustom = function (fileName, dataName, data) {
+			try {
+				const path = require("path").join(__dirname, "dbm_dashboard_EXT", "data", `${fileName}.json`);
+				if (!require("fs").existsSync(path)) {
+					let data = {};
+					data = JSON.stringify(data);
+					require("fs").writeFileSync(path, data);
+				};
+				let database = require(`./dbm_dashboard_EXT/data/${fileName}.json`);
+				database[dataName] = data;
+				database = JSON.stringify(database);
+				require("fs").writeFileSync(path, database, "utf8");
+				return database;
+			} catch (error) {
+				console.log(error);
+			};
+		};
+
+		Dashboard.retrieveDataCustom = function (fileName, dataName) {
+			try {
+				const path = require("path").join(__dirname, "dbm_dashboard_EXT", "data", `${fileName}.json`);
+				if (!require("fs").existsSync(path)) {
+					let data = {};
+					data = JSON.stringify(data);
+					require("fs").writeFileSync(path, data);
+				};
+				let database = require(`./dbm_dashboard_EXT/data/${fileName}.json`);
+				return database[dataName];
+			} catch (error) {
+				console.error(error);
+			};
+		};
+
 
 		// Start the dashboard 
 		if (Dashboard.verifyConfig()) {

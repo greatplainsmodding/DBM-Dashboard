@@ -2,13 +2,13 @@ module.exports = {
     //----------------------------------------------------------------------------------
     // Used to set the name of the mod / extension. 
     // Note if this is an extension it cant have a space or it will not work.
-    name: "TestExtension",
+    name: "Global Prefix",
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
     // Here you can configure what section you want your mod to show up on the dashboard / admin panel. 
     // If this is an extension or route mod you can leave this blank.
-    section: "",
+    section: "Dashboard",
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ module.exports = {
 
     //----------------------------------------------------------------------------------
     // true if this is a mod for the admin panel.
-    adminMod: false,
+    adminMod: true,
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ module.exports = {
 
     //----------------------------------------------------------------------------------
     // Toggle this if you are creating a extension.
-    extensionMod: true,
+    extensionMod: false,
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ module.exports = {
     //----------------------------------------------------------------------------------
     // If this is for a mod and you want to add custom html to the mod set this to true.
     // If you are using this as a custom route you can leave this true or false as it will still pull the custom html.
-    customHtml: false,
+    customHtml: true,
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -75,7 +75,13 @@ module.exports = {
     // Also if you are using this mod for a custom route you can place your html code here and this is what will show up on the page. 
     // Note this is not inside of form tags if this is a custom route.
     html: function () {
-        return `<p>hello world</p>`
+        const config = require('../../../../data/settings.json');
+        return `
+        <div class="form-group">
+            <p>The global prefix is currently set to <b><code>${config.tag}</code></b></p>
+            <input class="form-control" name="prefix" rows="4" value="${config.tag}" required>
+        </div>
+        `
     },
     //----------------------------------------------------------------------------------
 
@@ -96,7 +102,18 @@ module.exports = {
     // Whenever the command is executed this is the code that will be ran. 
     // You can use req to get stuff, note this only works if you add custom html. 
     run: async (app, config, DBM, client, req, res, server) => {
-
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            config.tag = req.body.prefix;
+    
+            const configPath = path.join(process.cwd(), "data", "settings.json");
+            let settings = JSON.stringify(config);
+            fs.writeFileSync(configPath, settings);
+            req.user.log = `Successfully updated ${client.user.username}'s prefix. Note you will need to restart the bot for these changes to take effect.`;
+        } catch (error) {
+            req.user.log = 'We ran into an error.'
+        }
     }
     //----------------------------------------------------------------------------------
 }

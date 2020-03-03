@@ -51,7 +51,7 @@ module.exports = function (Dashboard) {
     };
 
 	Dashboard.dashboardConfig = function () {
-		const dashboardConfigPath = path.join(process.cwd(), "extensions", "dbm_dashboard_extension", "config.json");
+		const dashboardConfigPath = path.join(process.cwd(), "extensions", "dbm_dashboard_EXT", "config.json");
 		if (!fs.existsSync(dashboardConfigPath)) {
 			let configPlate = {
 				port: 3000,

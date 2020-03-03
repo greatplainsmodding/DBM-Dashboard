@@ -228,29 +228,37 @@ module.exports = {
     // Whenever the command is executed this is the code that will be ran. 
     // You can use req to get stuff, note this only works if you add custom html. 
     run: async (app, config, DBM, client, req, res, server) => {
+
+        const Discord = require("discord.js")
         let channel;
-        if (!server) {
-            if (req.body.serverType == 'id') server = client.guilds.find(server => server.id === req.body.server);
-            if (!server) server = client.guilds.find(server => server.name === req.body.server);
-            if (!server) return req.user.log = 'I couldn\'t find this server, please make sure you have the right ID or name.';
+
+        try {
+            if (!server) {
+                if (req.body.serverType == 'id') server = client.guilds.find(server => server.id === req.body.server);
+                if (!server) server = client.guilds.find(server => server.name === req.body.server);
+                if (!server) return req.user.log = 'I couldn\'t find this server, please make sure you have the right ID or name.';
+            }
+    
+            if (req.body.channelType == 'id') channel = server.channels.find(channel => channel.id === req.body.channel);
+            if (!channel) channel = client.guilds.find(channel => channel.name === req.body.channel);
+            if (!channel) return req.user.log = 'I couldn\'t find this channel, please make sure you have the right ID or name.';
+    
+            const embed = new Discord.RichEmbed()
+                .setColor(req.body.color)
+                .setTitle(req.body.title)
+                .setURL(req.body.url)
+                .setAuthor(req.body.author, req.body.authorpic)
+                .setDescription(req.body.description)
+                .setThumbnail(req.body.thumb)
+                .setImage(req.body.image)
+                .setFooter(req.body.footer, req.body.footerurl);
+            channel.send(embed);
+    
+            req.user.log = `Successfully sent the embed to ${server.name}`;
+        } catch (error) {
+            console.log(error)
+            req.user.log = 'We ran into an error.';
         }
-
-        if (req.body.channelType == 'id') channel = server.channels.find(channel => channel.id === req.body.channel);
-        if (!channel) channel = client.guilds.find(channel => channel.name === req.body.channel);
-        if (!channel) return req.user.log = 'I couldn\'t find this channel, please make sure you have the right ID or name.';
-
-        const embed = new Discord.RichEmbed()
-            .setColor(req.body.color)
-            .setTitle(req.body.title)
-            .setURL(req.body.url)
-            .setAuthor(req.body.author, req.body.authorpic)
-            .setDescription(req.body.description)
-            .setThumbnail(req.body.thumb)
-            .setImage(req.body.image)
-            .setFooter(req.body.footer, req.body.footerurl);
-        channel.send(embed);
-
-        req.user.log = `Successfully sent the embed to ${server.name}`;
     }
     //----------------------------------------------------------------------------------
 }
