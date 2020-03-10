@@ -1,7 +1,8 @@
 # DBM Dashboard
 
-> Manage your DBM bot fron any place.
-
+> You can find user created mods [here](https://github.com/greatplainsmodding/DBM-Dashboard-Mods).<br>
+> Want to try out new features? You can install the beta version [here](https://github.com/greatplainsmodding/DBM-Dashboard)<br>
+> If you find any bugs please report them [here](https://github.com/greatplainsmodding/DBM-Dashboard/issues).
 
 | DBM Dashboard Features                                                | Description                         |                                                      |                                    
 | -------------------------------------------------------------- | ----------------------------------- | ---------------------------------------------------- |
@@ -12,8 +13,9 @@
 
 ## Links
 > [Developer Portal](https://discordapp.com/developers)<br>
-> [DBM Network](https://discord.gg/3QxkZPK)
-> [Video Tutorial](https://www.youtube.com/watch?v=7Czpi7efPnw&feature=youtu.be)
+> [DBM Network](https://discord.gg/3QxkZPK)<br>
+> [Video Tutorial](https://youtu.be/X1hDV2t_Qoo)<br>
+> [Glitch Tutorial](https://youtu.be/Ey5R1IdV9FA)
 
 ## Step 1
 > Download the needed files. You can download them through CMD if you have git installed. After you have downloaded the files, unzip them and paste them into your bots extensions folder. <br> <code>git clone https://github.com/greatplainsmodding/DBM-Dashboard.git</code>
@@ -29,8 +31,23 @@
 ## Step 4
 > Now to configure the dashboard! Navigate to <code>http://localhost:3000/dashboard/admin</code> and here you can change the text for the landing page located here <code>http://localhost:3000/</code>
 
+## Glitch
+```
+    "body-parser": "^1.19.0",
+    "chalk": "^3.0.0",
+    "figlet": "^1.2.4",
+    "cookie-parser": "^1.4.4",
+    "ejs": "^3.0.1",
+    "express": "^4.17.1",
+    "express-session": "^1.17.0",
+    "fs": "0.0.1-security",
+    "passport": "^0.4.1",
+    "passport-discord": "^0.1.3",
+    "path": "^0.12.7"
+```
+
 ## Bugs
-> After you make a change through the extension in DBM and reopen it, it wont update.
+> Did you find a bug? You can report bugs [here](https://github.com/greatplainsmodding/DBM-Dashboard/issues).
 
 ## Other Info
 > <b>Creating Mods:</b> Just like DBM you can create mods for DBM Dashboard! Its just like DBM.<br>
