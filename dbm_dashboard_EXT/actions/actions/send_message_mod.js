@@ -13,7 +13,7 @@ module.exports = {
 
     //----------------------------------------------------------------------------------
     // true if this is a mod for the dashboard.
-    dashboardMod: false,
+    dashboardMod: true,
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -81,7 +81,8 @@ module.exports = {
     // This is also valid bootstrap. Also note that this html code will be placed inside of <form> so if you want to retrieve the data all you need to do is add the fields.
     // Also if you are using this mod for a custom route you can place your html code here and this is what will show up on the page. 
     // Note this is not inside of form tags if this is a custom route.
-    html: function () {
+    html: function (requestFromAdmin) {
+		if (requestFromAdmin) {
         return `
         <div class="form-group">
             <p>Find Server By:</p>
@@ -102,7 +103,20 @@ module.exports = {
             <textarea class="form-control" name="message" rows="4" required style="width=100%"></textarea>
         </div>
         `
-    },
+    } else {
+		return `            <p>Find Channel By:</p>
+            <select class="form-control" name="channelType">
+                <option selected value="id">Channel ID</option>
+                <option value="name">Channel Name</option>
+            </select><br>
+            <p>Channel ID / Name:</p>
+            <input class="form-control" name="channel" rows="4" required><br><br>
+            <p>Message:</p>
+            <textarea class="form-control" name="message" rows="4" required style="width=100%"></textarea>
+        </div>
+        `
+	}
+},
     //----------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------
@@ -123,14 +137,15 @@ module.exports = {
     // You can use req to get stuff, note this only works if you add custom html. 
     run: async (app, config, DBM, client, req, res, server) => {
         try {
-            let channel;
-            if (req.body.serverType == 'id') server = client.guilds.find(server => server.id === req.body.server);
-            if (!server) server = client.guilds.find(server => server.name === req.body.server);
-            if (!server) return client.log = 'I couldn\'t find this server, please make sure you have the right ID or name.';
+            if (!server) {
+                if (req.body.serverType == 'id') server = client.guilds.find(server => server.id === req.body.server);
+                if (!server) server = client.guilds.find(server => server.name === req.body.server);
+                if (!server) return req.user.log = 'I couldn\'t find this server, please make sure you have the right ID or name.';
+            }
     
             if (req.body.channelType == 'id') channel = server.channels.find(channel => channel.id === req.body.channel);
             if (!channel) channel = client.guilds.find(channel => channel.name === req.body.channel);
-            if (!channel) return client.log = 'I couldn\'t find this channel, please make sure you have the right ID or name.';
+            if (!channel) return req.user.log = 'I couldn\'t find this channel, please make sure you have the right ID or name. Also make sure the channel you are trying to find is not from a different server!';
     
     
             channel.send(req.body.message);
